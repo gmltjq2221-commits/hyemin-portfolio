@@ -7,19 +7,14 @@
 
 	<style>
 		:root {
-			--bg: #ffffff;
-			--bg-soft: #f5f5f5;
-			--text: #111111;
-			--muted: #777777;
-			--line: #e7e7e7;
-			--line-dark: #cfcfcf;
-			--black: #111111;
 			--white: #ffffff;
-			--shadow: 0 18px 45px rgba(0, 0, 0, 0.10);
-			--section-black: #111111;
-			--section-white: #ffffff;
-			--section-ivory: #f8f8f8;
-			--section-gray: #eeeeee;
+			--black: #080808;
+			--text: #111111;
+			--muted: #767676;
+			--line: #dedede;
+			--line-dark: #242424;
+			--soft: #f5f5f5;
+			--header-h: 82px;
 		}
 
 		* {
@@ -30,12 +25,13 @@
 
 		html {
 			scroll-behavior: smooth;
+			scroll-snap-type: y proximity;
 		}
 
 		body {
 			font-family: Arial, "Noto Sans KR", sans-serif;
 			color: var(--text);
-			background: var(--section-white);
+			background: var(--white);
 			overflow-x: hidden;
 		}
 
@@ -45,9 +41,9 @@
 		}
 
 		img {
+			display: block;
 			width: 100%;
 			height: 100%;
-			display: block;
 			object-fit: cover;
 		}
 
@@ -61,76 +57,104 @@
 			left: 0;
 			z-index: 100;
 			width: 100%;
-			background: rgba(255, 255, 255, 0.92);
+			background: rgba(255, 255, 255, 0.94);
+			border-bottom: 1px solid var(--line);
 			backdrop-filter: blur(14px);
-			border-bottom: 1px solid rgba(17, 17, 17, 0.14);
 		}
 
 		.nav {
 			display: flex;
 			align-items: center;
 			justify-content: space-between;
-			max-width: 1360px;
+			max-width: 1440px;
+			height: var(--header-h);
 			margin: 0 auto;
-			padding: 24px 48px;
-			min-height: 84px;
+			padding: 0 48px;
 		}
 
 		.logo {
 			font-size: 18px;
-			font-weight: 700;
+			font-weight: 800;
 			letter-spacing: 0.08em;
-			color: var(--text);
 		}
 
 		.logo span {
 			display: block;
 			margin-top: 4px;
 			font-size: 10px;
-			font-weight: 400;
+			font-weight: 500;
 			color: var(--muted);
 			letter-spacing: 0.22em;
+		}
+
+		.nav-head {
+			display: flex;
+			align-items: center;
+			justify-content: space-between;
+		}
+
+		.mobile-menu-btn {
+			display: none;
+			align-items: center;
+			justify-content: center;
+			flex-direction: column;
+			gap: 5px;
+			width: 44px;
+			height: 44px;
+			border: 1px solid var(--black);
+			background: var(--white);
+			cursor: pointer;
+		}
+
+		.mobile-menu-btn span {
+			display: block;
+			width: 18px;
+			height: 2px;
+			background: var(--black);
+			transition: 0.2s ease;
+		}
+
+		.mobile-menu-btn.open span:nth-child(1) {
+			transform: translateY(7px) rotate(45deg);
+		}
+
+		.mobile-menu-btn.open span:nth-child(2) {
+			opacity: 0;
+		}
+
+		.mobile-menu-btn.open span:nth-child(3) {
+			transform: translateY(-7px) rotate(-45deg);
 		}
 
 		.menu {
 			display: flex;
 			align-items: center;
-			gap: 34px;
-			font-size: 13px;
-			font-weight: 600;
-			letter-spacing: 0.06em;
+			gap: 8px;
 		}
 
 		.menu-link,
 		.dropdown-toggle {
-			position: relative;
-			display: inline-block;
-			padding-bottom: 5px;
-			background: none;
-			border: none;
+			display: inline-flex;
+			align-items: center;
+			justify-content: center;
+			min-height: 38px;
+			padding: 0 15px;
+			border: 1px solid transparent;
+			background: transparent;
 			color: var(--text);
-			font-size: inherit;
-			font-weight: inherit;
-			letter-spacing: inherit;
+			font-size: 13px;
+			font-weight: 700;
+			letter-spacing: 0.04em;
 			cursor: pointer;
+			transition: 0.2s ease;
 		}
 
-		.menu-link::after,
-		.dropdown-toggle::after {
-			content: "";
-			position: absolute;
-			left: 0;
-			bottom: 0;
-			width: 0;
-			height: 1px;
+		.menu-link:hover,
+		.dropdown.open .dropdown-toggle,
+		.dropdown:hover .dropdown-toggle {
+			border-color: var(--black);
 			background: var(--black);
-			transition: 0.25s ease;
-		}
-
-		.menu-link:hover::after,
-		.dropdown:hover .dropdown-toggle::after,
-		.dropdown.open .dropdown-toggle::after {
-			width: 100%;
+			color: var(--white);
 		}
 
 		.dropdown {
@@ -138,22 +162,21 @@
 		}
 
 		.dropdown-toggle span {
-			margin-left: 5px;
+			margin-left: 8px;
 			font-size: 10px;
 		}
 
 		.dropdown-menu {
 			position: absolute;
-			top: calc(100% + 18px);
-			left: 50%;
-			transform: translateX(-50%) translateY(8px);
+			top: calc(100% + 10px);
+			left: 0;
 			min-width: 190px;
-			padding: 10px;
-			border: 1px solid #111111;
-			background: rgba(255, 255, 255, 0.94);
-			box-shadow: var(--shadow);
+			padding: 8px;
+			border: 1px solid var(--black);
+			background: var(--white);
 			opacity: 0;
 			visibility: hidden;
+			transform: translateY(8px);
 			transition: 0.2s ease;
 		}
 
@@ -161,237 +184,149 @@
 		.dropdown:hover .dropdown-menu {
 			opacity: 1;
 			visibility: visible;
-			transform: translateX(-50%) translateY(0);
+			transform: translateY(0);
 		}
 
 		.dropdown-menu a {
 			display: block;
 			padding: 12px 14px;
-			color: var(--muted);
 			font-size: 13px;
-			letter-spacing: 0.02em;
+			font-weight: 700;
+			color: var(--text);
 			transition: 0.2s ease;
 		}
 
 		.dropdown-menu a:hover {
-			color: var(--white);
 			background: var(--black);
+			color: var(--white);
 		}
 
 		main {
-			padding-top: 84px;
+			padding-top: var(--header-h);
+		}
+
+		.snap-section {
+			scroll-snap-align: start;
+			scroll-margin-top: var(--header-h);
+			min-height: calc(100vh - var(--header-h));
+			scroll-snap-stop: always;
 		}
 
 		.section {
-			max-width: 1360px;
+			max-width: 1440px;
 			margin: 0 auto;
-			padding: 108px 48px;
+			padding: 100px 48px;
 		}
 
-		.section-kicker {
-			margin-bottom: 12px;
+		.section.black {
+			max-width: none;
+			background: var(--black);
+			color: var(--white);
+		}
+
+		.section.black > .section-inner {
+			max-width: 1440px;
+			margin: 0 auto;
+			padding: 0 48px;
+		}
+
+		.kicker {
+			margin-bottom: 14px;
 			font-size: 12px;
-			font-weight: 700;
-			color: #111111;
-			letter-spacing: 0.22em;
+			font-weight: 800;
+			color: var(--muted);
+			letter-spacing: 0.2em;
 			text-transform: uppercase;
 		}
 
+		.section.black .kicker {
+			color: #a8a8a8;
+		}
+
 		.section-title {
-			margin-bottom: 44px;
-			font-size: clamp(42px, 7vw, 96px);
-			font-weight: 400;
-			letter-spacing: -0.06em;
-			line-height: 0.94;
-			color: var(--text);
+			font-size: clamp(44px, 7vw, 96px);
+			font-weight: 500;
+			letter-spacing: -0.07em;
+			line-height: 0.95;
 		}
 
-		.hero {
-			min-height: calc(100vh - 84px);
-			display: grid;
-			align-items: center;
-			background: linear-gradient(90deg, #ffffff 0%, #ffffff 58%, #111111 58%, #111111 100%);
-			border-bottom: 1px solid #111111;
-		}
-
-		.hero-inner {
-			max-width: 1360px;
-			width: 100%;
-			margin: 0 auto;
-			padding: 72px 48px 96px;
-		}
-
-		.hero-grid {
-			display: grid;
-			grid-template-columns: minmax(0, 1.2fr) minmax(360px, 1fr);
-			gap: 72px;
-			align-items: center;
-		}
-
-		.hero-title {
-			margin-bottom: 26px;
-			font-size: clamp(56px, 9vw, 136px);
-			font-weight: 400;
-			line-height: 0.88;
-			letter-spacing: -0.075em;
-			color: #111111;
-		}
-
-		.hero-title em {
-			font-style: normal;
-			color: #111111;
-			-webkit-text-stroke: 1px #111111;
-		}
-
-		.hero-text {
-			max-width: 590px;
-			font-size: 17px;
-			line-height: 1.85;
-			color: #4a4a4a;
-			word-break: keep-all;
-		}
-
-		.hero-actions {
+		.featured {
+			min-height: calc(100vh - var(--header-h));
 			display: flex;
-			gap: 12px;
-			flex-wrap: wrap;
-			margin-top: 34px;
-		}
-
-		.btn {
-			display: inline-flex;
-			align-items: center;
+			flex-direction: column;
 			justify-content: center;
-			min-height: 48px;
-			padding: 0 22px;
-			border-radius: 999px;
-			border: 1px solid var(--black);
-			font-size: 14px;
-			font-weight: 700;
-			background: transparent;
-			color: var(--black);
-			transition: 0.25s ease;
-			cursor: pointer;
+			border-bottom: 1px solid var(--line);
 		}
 
-		.btn.primary {
-			color: var(--white);
-			background: var(--black);
+		.featured-head {
+			display: grid;
+			grid-template-columns: minmax(0, 0.8fr) minmax(320px, 0.48fr);
+			gap: 48px;
+			align-items: end;
+			margin-bottom: 48px;
 		}
 
-		.btn:hover {
-			transform: translateY(-2px);
-			box-shadow: var(--shadow);
-		}
-
-		.hero-visual {
-			position: relative;
-			min-height: 620px;
-		}
-
-		.hero-card {
-			position: absolute;
-			overflow: hidden;
-			background: #ffffff;
-			border: 1px solid #111111;
-			box-shadow: 0 18px 50px rgba(0, 0, 0, 0.18);
-		}
-
-		.hero-card.large {
-			inset: 40px 0 0 92px;
-			aspect-ratio: 4 / 5;
-		}
-
-		.hero-card.small {
-			left: 0;
-			bottom: 46px;
-			width: 43%;
-			aspect-ratio: 4 / 5;
-			border: 10px solid #ffffff;
-		}
-
-		.hero-card.wide {
-			right: 18px;
-			top: 0;
-			width: 52%;
-			aspect-ratio: 16 / 10;
-			border: 10px solid #ffffff;
-		}
-
-		.floating-label {
-			position: absolute;
-			right: 0;
-			bottom: 0;
-			z-index: 2;
-			padding: 17px 22px;
-			border: 1px solid #ffffff;
-			border-radius: 999px;
-			background: rgba(17, 17, 17, 0.92);
-			box-shadow: var(--shadow);
-			font-size: 12px;
-			font-weight: 700;
-			color: #ffffff;
-			letter-spacing: 0.1em;
-		}
-
-		.home-block {
-			margin-top: 100px;
-			padding: 42px;
-			border: 1px solid #111111;
-			background: #ffffff;
-		}
-
-		.home-block:nth-of-type(3) {
-			color: #ffffff;
-			background: #111111;
-		}
-
-		.home-block:nth-of-type(3) .sub-title {
-			color: #ffffff;
-		}
-
-		.home-block:nth-of-type(3) .block-desc,
-		.home-block:nth-of-type(3) .card-type {
-			color: #d5d5d5;
-		}
-
-		.home-block:nth-of-type(3) .slider-btn {
-			border-color: #ffffff;
-			background: #ffffff;
-			color: #111111;
-		}
-		.home-block:nth-of-type(3) .slider-btn:hover {
-			background: #111111;
-			color: #ffffff;
-		}
-
-		.home-block:nth-of-type(3) .card-meta {
-			color: #111111;
-			background: rgba(255, 255, 255, 0.9);
-		}
-
-		.block-head {
-			display: flex;
-			align-items: flex-end;
-			justify-content: space-between;
-			gap: 24px;
-			margin-bottom: 28px;
-		}
-
-		.sub-title {
-			font-size: clamp(30px, 4vw, 56px);
-			font-weight: 400;
-			letter-spacing: -0.05em;
-			color: var(--text);
-		}
-
-		.block-desc {
-			max-width: 380px;
+		.featured-copy {
+			max-width: 520px;
 			color: var(--muted);
-			font-size: 14px;
-			line-height: 1.7;
-			text-align: right;
+			font-size: 16px;
+			line-height: 1.8;
 			word-break: keep-all;
+		}
+
+		/* Home: 이미지 위 / 비디오 아래 수직 레이아웃 */
+		.featured-grid {
+			display: flex;
+			flex-direction: column;
+			gap: 28px;
+			width: 100%;
+		}
+
+		.featured-block {
+			border: 1px solid var(--black);
+			background: var(--white);
+		}
+
+		.featured-block.black {
+			background: var(--black);
+			color: var(--white);
+		}
+
+		/* 각 블록 내부 슬라이더 가로 배치 */
+		.featured-block .slider-wrap {
+			position: relative;
+		}
+
+		/* 이미지 블록: 세로 비율 더 짧게 */
+		.featured-block:not(.black) .slide-image {
+			aspect-ratio: 16 / 9;
+		}
+
+		/* 비디오 블록: 16:9 유지 */
+		.featured-block.black .slide-image {
+			aspect-ratio: 16 / 9;
+		}
+
+		/* 두 블록 모두 슬라이드 카드 너비를 더 넓게 */
+		.featured-block .slide-card {
+			flex: 0 0 calc(50% - 10px);
+			min-width: 420px;
+		}
+
+		.featured-block .slider {
+			gap: 20px;
+			padding: 22px;
+		}
+
+		.block-label {
+			display: flex;
+			align-items: center;
+			justify-content: space-between;
+			padding: 22px 24px;
+			border-bottom: 1px solid currentColor;
+			font-size: 16px;
+			font-weight: 800;
+			letter-spacing: 0.04em;
 		}
 
 		.slider-wrap {
@@ -400,271 +335,225 @@
 
 		.slider {
 			display: flex;
-			gap: 24px;
+			gap: 14px;
 			overflow-x: auto;
 			scroll-behavior: smooth;
-			padding: 8px 2px 28px;
 			scroll-snap-type: x mandatory;
-		}
-
-		.slider::-webkit-scrollbar {
-			height: 5px;
-		}
-
-		.slider::-webkit-scrollbar-thumb {
-			border-radius: 999px;
-			background: #f5f5f5;
-		}
-
-		.slider.auto-scroll {
+			padding: 14px;
 			scrollbar-width: none;
 		}
 
-		.slider.auto-scroll::-webkit-scrollbar {
+		.slider::-webkit-scrollbar {
 			display: none;
 		}
 
-		.card {
+		.slide-card {
 			position: relative;
-			flex: 0 0 390px;
+			flex: 0 0 calc(50% - 7px);
+			min-width: 260px;
 			scroll-snap-align: start;
+			background: var(--soft);
 			cursor: pointer;
-			border: 1px solid #111111;
 		}
 
-		.card-img {
+		.slide-image {
 			position: relative;
-			aspect-ratio: 4 / 5;
+			aspect-ratio: 4 / 3;
 			overflow: hidden;
-			background: var(--bg-soft);
 		}
 
-		.card-img img {
-			transition: 0.55s ease;
+		.featured-block.black .slide-card {
+			background: #171717;
 		}
 
-		.card:hover .card-img img {
-			transform: scale(1.045);
-		}
-
-		.card-meta {
+		.slide-info {
 			position: absolute;
-			left: 16px;
-			right: 16px;
-			bottom: 16px;
+			left: 0;
+			right: 0;
+			bottom: 0;
 			display: flex;
 			align-items: center;
 			justify-content: space-between;
-			gap: 16px;
-			padding: 15px 17px;
-			color: #ffffff;
-			background: rgba(17, 17, 17, 0.88);
-			backdrop-filter: blur(12px);
-			border: 1px solid var(--line);
+			gap: 12px;
+			padding: 14px;
+			background: rgba(255, 255, 255, 0.9);
+			color: var(--black);
+			font-size: 13px;
+			font-weight: 800;
 		}
 
-		.card-title {
-			font-size: 15px;
-			font-weight: 700;
-		}
-
-		.card-type {
-			font-size: 12px;
-			color: #d7d7d7;
-			white-space: nowrap;
+		.featured-block.black .slide-info {
+			background: rgba(0, 0, 0, 0.78);
+			color: var(--white);
 		}
 
 		.slider-btn {
 			position: absolute;
-			top: 45%;
-			z-index: 4;
-			transform: translateY(-50%);
-			width: 46px;
-			height: 46px;
-			border: 1px solid var(--line);
+			top: 50%;
+			z-index: 2;
+			width: 42px;
+			height: 42px;
+			border: 1px solid var(--black);
 			border-radius: 50%;
-			background: rgba(255, 255, 255, 0.94);
-			box-shadow: var(--shadow);
+			background: var(--white);
+			color: var(--black);
+			font-size: 24px;
 			cursor: pointer;
-			font-size: 25px;
-			display: flex;
-			align-items: center;
-			justify-content: center;
-			transition: 0.25s ease;
-			color: var(--text);
+			transform: translateY(-50%);
+			transition: 0.2s ease;
 		}
 
 		.slider-btn:hover {
-			color: var(--white);
 			background: var(--black);
+			color: var(--white);
+		}
+
+		.featured-block.black .slider-btn {
+			border-color: var(--white);
+			background: var(--black);
+			color: var(--white);
+		}
+
+		.featured-block.black .slider-btn:hover {
+			background: var(--white);
+			color: var(--black);
 		}
 
 		.slider-btn.prev {
-			left: -23px;
+			left: 10px;
 		}
 
 		.slider-btn.next {
-			right: -23px;
+			right: 10px;
 		}
 
-		#photography {
-			background: #ffffff;
-			box-shadow: 0 0 0 100vmax #ffffff;
-			clip-path: inset(0 -100vmax);
-		}
-
-		.category-nav {
-			position: sticky;
-			top: 100px;
-			z-index: 20;
+		.play-button {
+			position: absolute;
+			left: 50%;
+			top: 50%;
+			z-index: 2;
 			display: flex;
-			gap: 10px;
+			align-items: center;
+			justify-content: center;
+			width: 62px;
+			height: 62px;
+			border: 1px solid var(--white);
+			border-radius: 50%;
+			background: rgba(0, 0, 0, 0.68);
+			color: var(--white);
+			font-size: 22px;
+			transform: translate(-50%, -50%);
+		}
+
+		.category-tabs {
+			display: flex;
 			flex-wrap: wrap;
-			width: fit-content;
-			margin-bottom: 78px;
-			padding: 10px;
-			border: 1px solid #111111;
-			border-radius: 0;
-			background: #111111;
+			gap: 10px;
+			margin: 44px 0 70px;
 		}
 
-		.category-nav a {
-			padding: 11px 20px;
-			border-radius: 999px;
+		.category-tabs a {
+			padding: 13px 18px;
+			border: 1px solid var(--black);
 			font-size: 13px;
-			font-weight: 700;
-			color: #ffffff;
-			transition: 0.25s ease;
+			font-weight: 800;
+			transition: 0.2s ease;
 		}
 
-		.category-nav a:hover {
-			color: #111111;
-			background: #ffffff;
+		.category-tabs a:hover {
+			background: var(--black);
+			color: var(--white);
 		}
 
 		.photo-section {
-			margin-bottom: 34px;
-			padding: 64px 36px;
-			border: 1px solid #111111;
-			background: #ffffff;
-			scroll-margin-top: 180px;
+			padding: 70px 0;
+			border-top: 1px solid var(--line);
+			scroll-snap-align: start;
+			scroll-margin-top: var(--header-h);
 		}
 
-		.photo-section:nth-of-type(even) {
-			color: #ffffff;
-			background: #111111;
-		}
-
-		.photo-section:nth-of-type(even) h3 {
-			color: #ffffff;
-		}
-
-		.photo-section:nth-of-type(even) .photo-head p {
-			color: #d6d6d6;
-		}
-
-		.photo-section:nth-of-type(even) .more-btn {
-			color: #111111;
-			border-color: #ffffff;
-			background: #ffffff;
-		}
-
-		.photo-section:nth-of-type(even) .more-btn:hover {
-			color: #ffffff;
-			background: #111111;
+		.photo-section.black-row {
+			margin: 0 -48px;
+			padding: 78px 48px;
+			background: var(--black);
+			color: var(--white);
 		}
 
 		.photo-head {
 			display: flex;
-			align-items: flex-end;
+			align-items: end;
 			justify-content: space-between;
 			gap: 24px;
-			margin-bottom: 30px;
+			margin-bottom: 24px;
 		}
 
 		.photo-head h3 {
-			font-size: clamp(34px, 4vw, 60px);
-			font-weight: 400;
+			font-size: clamp(34px, 4vw, 58px);
+			font-weight: 500;
 			letter-spacing: -0.055em;
-			color: var(--text);
 		}
 
 		.photo-head p {
-			margin-top: 10px;
+			margin-top: 8px;
 			color: var(--muted);
-			font-size: 15px;
+			font-size: 14px;
+		}
+
+		.photo-section.black-row .photo-head p {
+			color: #b5b5b5;
 		}
 
 		.more-btn {
-			min-width: 108px;
-			padding: 12px 18px;
-			border: 1px solid var(--black);
-			border-radius: 999px;
-			background: var(--white);
-			font-size: 14px;
+			min-width: 106px;
+			padding: 12px 16px;
+			border: 1px solid currentColor;
+			background: transparent;
+			color: inherit;
+			font-size: 13px;
 			font-weight: 800;
 			cursor: pointer;
-			transition: 0.25s ease;
+			transition: 0.2s ease;
 		}
 
 		.more-btn:hover {
+			background: currentColor;
+		}
+
+		.more-btn:hover span {
 			color: var(--white);
-			background: var(--black);
+		}
+
+		.photo-section.black-row .more-btn:hover span {
+			color: var(--black);
 		}
 
 		.image-grid {
 			display: grid;
 			grid-template-columns: repeat(4, 1fr);
-			gap: 16px;
+			gap: 12px;
 		}
 
 		.image-item {
 			position: relative;
 			aspect-ratio: 1 / 1;
 			overflow: hidden;
-			background: var(--bg-soft);
+			background: var(--soft);
 			cursor: pointer;
-			border: 1px solid rgba(17, 17, 17, 0.18);
-		}
-
-		.photo-section:nth-of-type(even) .image-item {
-			border-color: rgba(255, 255, 255, 0.3);
-		}
-
-		.image-item.tall {
-			grid-row: span 2;
-			aspect-ratio: auto;
-		}
-
-		.image-item.wide {
-			grid-column: span 2;
-			aspect-ratio: 2 / 1;
-		}
-
-		.image-item img {
-			transition: 0.55s ease;
-		}
-
-		.image-item:hover img {
-			transform: scale(1.055);
 		}
 
 		.image-item::after {
 			content: attr(data-title);
 			position: absolute;
-			left: 12px;
-			right: 12px;
-			bottom: 12px;
-			padding: 12px 14px;
-			color: #ffffff;
-			background: rgba(17, 17, 17, 0.86);
-			backdrop-filter: blur(10px);
-			font-size: 13px;
-			font-weight: 700;
+			left: 10px;
+			bottom: 10px;
+			padding: 8px 10px;
+			background: rgba(255, 255, 255, 0.9);
+			color: var(--black);
+			font-size: 12px;
+			font-weight: 800;
 			opacity: 0;
-			transform: translateY(8px);
-			transition: 0.25s ease;
-			border: 1px solid var(--line);
+			transform: translateY(6px);
+			transition: 0.2s ease;
 		}
 
 		.image-item:hover::after {
@@ -676,73 +565,42 @@
 			display: none;
 		}
 
-		#videography {
-			color: #ffffff;
-			background: #111111;
-			box-shadow: 0 0 0 100vmax #111111;
-			clip-path: inset(0 -100vmax);
-		}
-
-		#videography .section-kicker,
-		#videography .section-title,
-		#videography .video-project-title {
-			color: #ffffff;
-		}
-
-		#videography .video-intro,
-		#videography .video-desc,
-		#videography .video-project-category {
-			color: #d8d8d8;
-		}
-
 		.video-intro {
 			max-width: 680px;
-			margin-top: -20px;
-			margin-bottom: 42px;
+			margin: 24px 0 44px;
+			color: #cfcfcf;
 			font-size: 16px;
 			line-height: 1.8;
 			word-break: keep-all;
 		}
 
 		.video-project {
-			padding: 48px 36px;
-			border: 1px solid #ffffff;
-			background: #111111;
-			margin-bottom: 30px;
-		}
-
-		.video-project:nth-of-type(even) {
-			color: #111111;
-			border-color: #111111;
-			background: #ffffff;
-		}
-
-		.video-project:nth-of-type(even) .video-project-title,
-		.video-project:nth-of-type(even) .video-project-category,
-		.video-project:nth-of-type(even) .video-title,
-		.video-project:nth-of-type(even) .video-desc {
-			color: #111111;
+			padding: 44px 0;
+			border-top: 1px solid var(--line-dark);
+			scroll-snap-align: start;
+			scroll-margin-top: var(--header-h);
 		}
 
 		.video-project-head {
 			display: flex;
+			align-items: end;
 			justify-content: space-between;
-			gap: 24px;
-			margin-bottom: 24px;
+			gap: 20px;
+			margin-bottom: 20px;
 		}
 
 		.video-project-title {
 			font-size: clamp(24px, 3vw, 38px);
 			font-weight: 500;
-			letter-spacing: -0.04em;
+			letter-spacing: -0.045em;
 			word-break: keep-all;
 		}
 
 		.video-project-category {
-			padding-top: 8px;
-			font-size: 13px;
-			font-weight: 700;
-			letter-spacing: 0.12em;
+			color: #a8a8a8;
+			font-size: 12px;
+			font-weight: 800;
+			letter-spacing: 0.14em;
 			text-transform: uppercase;
 			white-space: nowrap;
 		}
@@ -750,140 +608,110 @@
 		.video-grid {
 			display: grid;
 			grid-template-columns: repeat(2, 1fr);
-			gap: 24px;
+			gap: 14px;
 		}
 
 		.video-card {
 			display: block;
-			padding: 12px;
-			border: 1px solid currentColor;
-			background: transparent;
-			transition: 0.25s ease;
+			border: 1px solid var(--line-dark);
+			background: #111111;
+			color: var(--white);
+			transition: 0.2s ease;
 		}
 
 		.video-card:hover {
-			transform: translateY(-4px);
-			box-shadow: var(--shadow);
+			border-color: var(--white);
 		}
 
-		.video-frame {
+		.video-thumb {
 			position: relative;
 			aspect-ratio: 16 / 9;
 			overflow: hidden;
-			background: #000;
+			background: #000000;
 		}
 
-		.video-frame iframe {
-			position: absolute;
-			inset: 0;
-			width: 100%;
-			height: 100%;
-			border: 0;
-		}
-
-		.video-placeholder {
-			position: absolute;
-			inset: 0;
-			width: 100%;
-			height: 100%;
-			border: 0;
-			background: #000;
-			cursor: pointer;
-			overflow: hidden;
-		}
-
-		.video-placeholder img {
-			position: absolute;
-			inset: 0;
-			width: 100%;
-			height: 100%;
-			object-fit: cover;
+		.video-thumb img {
 			opacity: 0.86;
-			transition: 0.3s ease;
+			transition: 0.25s ease;
 		}
 
-		.video-placeholder:hover img {
-			transform: scale(1.04);
-			opacity: 0.72;
+
+		.video-embed {
+			display: block;
+			width: 100%;
+			height: 100%;
+			border: 0;
+			background: #000000;
 		}
 
-		.video-play-icon {
+		.slide-image .video-embed,
+		.video-thumb .video-embed {
 			position: absolute;
-			left: 50%;
-			top: 50%;
-			z-index: 2;
-			transform: translate(-50%, -50%);
-			display: flex;
-			align-items: center;
-			justify-content: center;
-			width: 68px;
-			height: 68px;
-			border-radius: 50%;
-			color: #111111;
-			background: rgba(255, 255, 255, 0.92);
-			box-shadow: var(--shadow);
-			font-size: 22px;
-			line-height: 1;
+			inset: 0;
+		}
+
+		.video-card:hover .video-thumb img {
+			opacity: 0.64;
+			transform: scale(1.035);
 		}
 
 		.video-info {
-			padding: 16px 6px 6px;
-			background: transparent;
+			padding: 16px;
 		}
 
 		.video-title {
-			font-size: 17px;
+			font-size: 16px;
 			font-weight: 800;
-			line-height: 1.45;
+			line-height: 1.5;
 			word-break: keep-all;
 		}
 
 		.video-desc {
-			margin-top: 7px;
+			margin-top: 6px;
+			color: #b5b5b5;
 			font-size: 13px;
-			line-height: 1.65;
-			word-break: keep-all;
-		}
-
-		#about {
-			background: #ffffff;
-			box-shadow: 0 0 0 100vmax #ffffff;
-			clip-path: inset(0 -100vmax);
+			line-height: 1.55;
 		}
 
 		.about-wrap {
 			display: grid;
-			grid-template-columns: minmax(0, 1.3fr) minmax(320px, 1fr);
-			gap: 58px;
+			grid-template-columns: minmax(0, 0.9fr) minmax(300px, 0.45fr);
+			gap: 48px;
 			align-items: start;
+			margin-top: 42px;
 		}
 
 		.about-text {
-			max-width: 780px;
+			max-width: 760px;
 			font-size: 18px;
 			line-height: 1.9;
 			color: #333333;
 			word-break: keep-all;
 		}
 
-		.about-info {
-			padding: 28px;
-			border: 1px solid #111111;
-			background: #111111;
+		.about-text h3 {
+			margin-bottom: 18px;
+			font-size: clamp(28px, 3vw, 44px);
+			font-weight: 500;
+			letter-spacing: -0.045em;
 		}
 
-		.about-info,
-		.about-info strong,
-		.about-info span {
-			color: #ffffff;
+		.about-text p + p {
+			margin-top: 16px;
+		}
+
+		.about-info {
+			border: 1px solid var(--black);
+			background: var(--black);
+			color: var(--white);
 		}
 
 		.info-row {
 			display: flex;
 			justify-content: space-between;
-			gap: 18px;
-			padding: 16px 0;
-			border-bottom: 1px solid rgba(255, 255, 255, 0.22);
+			gap: 16px;
+			padding: 18px;
+			border-bottom: 1px solid var(--line-dark);
 			font-size: 14px;
 		}
 
@@ -892,21 +720,31 @@
 		}
 
 		.info-row strong {
-			font-weight: 600;
+			color: #a8a8a8;
+			font-weight: 700;
 		}
 
 		.info-row span {
 			text-align: right;
-			font-weight: 700;
+			font-weight: 800;
+		}
+
+		.info-row a {
+			color: inherit;
+			text-decoration: underline;
+			text-underline-offset: 4px;
+		}
+
+		.info-row a:hover {
+			color: #cfcfcf;
 		}
 
 		footer {
-			padding: 44px 48px;
+			padding: 34px 48px;
+			border-top: 1px solid var(--line);
 			text-align: center;
+			color: var(--muted);
 			font-size: 13px;
-			color: #111111;
-			background: #ffffff;
-			border-top: 1px solid #111111;
 		}
 
 		.lightbox {
@@ -916,9 +754,8 @@
 			display: none;
 			align-items: center;
 			justify-content: center;
-			padding: 28px;
-			background: rgba(255, 255, 255, 0.94);
-			backdrop-filter: blur(18px);
+			padding: 26px;
+			background: rgba(0, 0, 0, 0.86);
 		}
 
 		.lightbox.open {
@@ -930,59 +767,30 @@
 			height: auto;
 			max-width: 92vw;
 			max-height: 84vh;
-			box-shadow: var(--shadow);
 		}
 
 		.lightbox button {
 			position: absolute;
-			top: 24px;
-			right: 24px;
+			top: 22px;
+			right: 22px;
 			width: 44px;
 			height: 44px;
-			border: 1px solid var(--line-dark);
+			border: 1px solid var(--white);
 			border-radius: 50%;
-			color: var(--text);
-			background: var(--white);
-			cursor: pointer;
+			background: transparent;
+			color: var(--white);
 			font-size: 24px;
-		}
-
-		/* --- Responsive Media Queries --- */
-
-		@media (max-width: 1200px) {
-			.nav,
-			.hero-inner,
-			.section {
-				padding-left: 34px;
-				padding-right: 34px;
-			}
-
-			.hero-grid {
-				grid-template-columns: minmax(0, 1fr) minmax(320px, 0.9fr);
-				gap: 48px;
-			}
-
-			.hero-visual {
-				min-height: 540px;
-			}
-
-			.card {
-				flex-basis: 330px;
-			}
+			cursor: pointer;
 		}
 
 		@media (max-width: 1100px) {
-			.hero-card.large {
-				left: 26%;
-				right: 0;
+			.featured-head,
+			.about-wrap {
+				grid-template-columns: 1fr;
 			}
 
-			.hero-card.small {
-				width: 34%;
-			}
-
-			.hero-card.wide {
-				width: 42%;
+			.featured-block .slide-card {
+				flex: 0 0 calc(45% - 7px);
 			}
 
 			.image-grid {
@@ -990,127 +798,57 @@
 			}
 		}
 
-		@media (max-width: 900px) {
-			main {
-				padding-top: 76px;
+		@media (max-width: 860px) {
+			:root {
+				--header-h: auto;
 			}
 
-			.nav {
-				min-height: 76px;
-				padding-top: 16px;
-				padding-bottom: 16px;
+			html {
+				scroll-snap-type: none;
 			}
 
-			.menu {
-				gap: 16px;
-				font-size: 12px;
-			}
-
-			.dropdown-menu {
-				left: auto;
-				right: 0;
-				transform: translateY(8px);
-			}
-
-			.dropdown.open .dropdown-menu,
-			.dropdown:hover .dropdown-menu {
-				transform: translateY(0);
-			}
-
-			.hero {
-				background: linear-gradient(180deg, #ffffff 0%, #ffffff 54%, #111111 54%, #111111 100%);
-			}
-
-			.hero-grid {
-				grid-template-columns: 1fr;
-				gap: 42px;
-			}
-
-			.hero-visual {
-				min-height: 470px;
-			}
-
-			.home-block {
-				padding: 30px 24px;
-			}
-
-			.block-head {
-				align-items: flex-start;
-				flex-direction: column;
-			}
-
-			.block-desc {
-				text-align: left;
-			}
-
-			.slider-btn {
-				display: none;
-			}
-
-			.photo-section,
-			.video-project {
-				padding: 44px 24px;
-			}
-
-			.category-nav {
-				position: static;
-				width: 100%;
-				border-radius: 0;
-			}
-
-			.image-grid {
-				grid-template-columns: repeat(2, 1fr);
-				gap: 12px;
-			}
-
-			.image-item.wide {
-				grid-column: span 2;
-			}
-
-			.video-grid {
-				grid-template-columns: 1fr;
-			}
-
-			.about-wrap {
-				grid-template-columns: 1fr;
-			}
-		}
-
-		@media (max-width: 700px) {
 			header {
 				position: sticky;
 			}
 
-			main {
-				padding-top: 0;
-			}
-
 			.nav {
+				height: auto;
 				align-items: stretch;
 				flex-direction: column;
-				gap: 14px;
-				padding: 16px 18px;
+				gap: 0;
+				padding: 14px 20px;
+			}
+
+			.nav-head {
+				width: 100%;
+			}
+
+			.mobile-menu-btn {
+				display: inline-flex;
 			}
 
 			.menu {
-				display: grid;
-				grid-template-columns: repeat(2, minmax(0, 1fr));
+				display: none;
+				grid-template-columns: 1fr;
 				gap: 8px;
 				width: 100%;
+				margin-top: 14px;
+				padding-top: 14px;
+				border-top: 1px solid var(--line);
+			}
+
+			.menu.open {
+				display: grid;
 			}
 
 			.menu-link,
 			.dropdown-toggle {
+				justify-content: space-between;
 				width: 100%;
-				padding: 11px 8px;
-				border: 1px solid #111111;
-				text-align: center;
-				font-size: 11px;
-			}
-
-			.menu-link::after,
-			.dropdown-toggle::after {
-				display: none;
+				min-height: 46px;
+				padding: 0 16px;
+				border-color: var(--line);
+				font-size: 14px;
 			}
 
 			.dropdown {
@@ -1118,18 +856,14 @@
 			}
 
 			.dropdown-menu {
-				position: id;
+				position: static;
 				display: none;
 				width: 100%;
 				min-width: 0;
-				margin-top: 8px;
-				padding: 0;
-				border: 1px solid #111111;
-				box-shadow: none;
+				margin-top: 6px;
 				opacity: 1;
 				visibility: visible;
 				transform: none;
-				left: 0;
 			}
 
 			.dropdown:hover .dropdown-menu {
@@ -1140,189 +874,124 @@
 				display: block;
 			}
 
-			.dropdown-menu a {
-				text-align: center;
-				border-bottom: 1px solid var(--line);
+			main {
+				padding-top: 0;
 			}
 
-			.dropdown-menu a:last-child {
-				border-bottom: 0;
+			.section,
+			.section.black > .section-inner {
+				padding: 76px 22px;
 			}
 
-			.hero-inner,
-			.section {
-				padding-left: 18px;
-				padding-right: 18px;
+			.featured {
+				min-height: auto;
 			}
 
-			.hero-title {
-				font-size: clamp(44px, 17vw, 72px);
-				line-height: 0.94;
+			.featured-head {
+				margin-bottom: 34px;
 			}
 
-			.section-title {
-				font-size: clamp(40px, 16vw, 64px);
+			.featured-grid {
+				gap: 20px;
 			}
 
-			.hero-visual {
-				min-height: 380px;
+			/* 모바일: 슬라이드 카드 너비 조정 */
+			.featured-block .slide-card,
+			.slide-card {
+				flex-basis: 78%;
+				min-width: 220px;
 			}
 
-			.hero-card.large {
-				inset: 32px 0 0 64px;
+			/* 모바일: 이미지/비디오 비율 조정 */
+			.featured-block:not(.black) .slide-image {
+				aspect-ratio: 4 / 3;
 			}
 
-			.hero-card.small {
-				width: 46%;
-				bottom: 36px;
-				border-width: 7px;
+			.featured-block.black .slide-image {
+				aspect-ratio: 16 / 9;
 			}
 
-			.hero-card.wide {
-				width: 58%;
-				right: 8px;
-				border-width: 7px;
+			.slider-btn {
+				display: none;
 			}
 
-			.floating-label {
-				right: 8px;
-				bottom: -6px;
-				font-size: 10px;
-				padding: 13px 15px;
-				max-width: 220px;
-			}
-
-			.home-block {
-				padding: 24px 16px;
-				margin-top: 78px;
-			}
-
-			.sub-title {
-				font-size: 34px;
-			}
-
-			.slider {
-				gap: 14px;
-				padding-bottom: 22px;
-			}
-
-			.card {
-				flex-basis: 78vw;
-			}
-
-			.card-meta {
-				left: 10px;
-				right: 10px;
-				bottom: 10px;
-				padding: 12px 13px;
-			}
-
-			.card-title {
-				font-size: 13px;
-			}
-
-			.card-type {
-				font-size: 11px;
-			}
-
-			.category-nav {
-				position: static;
+			.category-tabs {
 				display: grid;
 				grid-template-columns: 1fr;
-				gap: 8px;
-				padding: 0;
-				border: 0;
-				background: transparent;
-				width: 100%;
+				margin-bottom: 46px;
 			}
 
-			.category-nav a {
-				border: 1px solid var(--line-dark);
-				border-radius: 0;
-				text-align: center;
-				color: var(--text);
-			}
-			.category-nav a:hover {
-				color: var(--white);
-				background: var(--black);
-			}
-
-			.photo-section,
-			.video-project {
-				padding: 36px 16px;
-			}
-
-			.photo-section {
-				scroll-margin-top: 20px;
+			.photo-section.black-row {
+				margin: 0 -22px;
+				padding: 64px 22px;
 			}
 
 			.photo-head,
 			.video-project-head {
 				align-items: flex-start;
 				flex-direction: column;
-				gap: 10px;
-			}
-
-			.photo-head h3 {
-				font-size: 36px;
+				gap: 14px;
 			}
 
 			.more-btn {
 				width: 100%;
 			}
 
-			.image-grid {
-				grid-template-columns: repeat(2, minmax(0, 1fr));
+			.image-grid,
+			.video-grid {
+				grid-template-columns: repeat(2, 1fr);
+			}
+		}
+
+		@media (max-width: 560px) {
+			.logo {
+				font-size: 16px;
+			}
+
+			.menu {
+				grid-template-columns: 1fr;
+			}
+
+			.section,
+			.section.black > .section-inner {
+				padding: 64px 18px;
+			}
+
+			.section-title {
+				font-size: clamp(42px, 16vw, 64px);
+			}
+
+			.featured-copy,
+			.video-intro,
+			.about-text {
+				font-size: 15px;
+				line-height: 1.75;
+			}
+
+			.featured-block {
+				margin: 0 -1px;
+			}
+
+			.block-label {
+				padding: 15px;
+			}
+
+			.image-grid,
+			.video-grid {
+				grid-template-columns: 1fr 1fr;
 				gap: 8px;
 			}
 
-			.image-item.tall {
-				grid-row: span 1;
-				aspect-ratio: 1 / 1;
-			}
-
-			.image-item::after {
-				display: none;
-			}
-
-			.video-intro {
-				margin-top: -10px;
-				margin-bottom: 30px;
-				font-size: 15px;
-			}
-
-			.video-project {
-				padding: 42px 0;
-			}
-
-			.video-project-title {
-				font-size: 25px;
-			}
-
-			.video-project-category {
-				padding-top: 0;
-			}
-
-			.video-card {
-				padding: 8px;
+			.video-info {
+				padding: 12px;
 			}
 
 			.video-title {
-				font-size: 16px;
+				font-size: 14px;
 			}
 
-			.video-play-icon {
-				width: 56px;
-				height: 56px;
-				font-size: 22px;
-			}
-
-			.about-text {
-				font-size: 16px;
-			}
-
-			.about-info {
-				padding: 20px;
+			.video-desc {
+				font-size: 12px;
 			}
 
 			.info-row {
@@ -1335,63 +1004,7 @@
 			}
 
 			footer {
-				padding: 36px 18px;
-			}
-
-			.lightbox {
-				padding: 18px;
-			}
-
-			.lightbox button {
-				top: 16px;
-				right: 16px;
-			}
-		}
-
-		@media (max-width: 420px) {
-			.menu {
-				grid-template-columns: 1fr;
-			}
-
-			.hero-inner {
-				padding-top: 36px;
-			}
-
-			.hero-actions {
-				gap: 8px;
-			}
-
-			.btn {
-				width: 100%;
-			}
-
-			.hero-visual {
-				min-height: 320px;
-			}
-
-			.hero-card.large {
-				inset: 26px 0 0 48px;
-			}
-
-			.hero-card.small,
-			.hero-card.wide {
-				border-width: 6px;
-			}
-
-			.slider {
-				gap: 12px;
-			}
-
-			.image-grid {
-				gap: 8px;
-			}
-
-			.image-item.wide {
-				grid-column: span 2;
-			}
-
-			.video-card {
-				padding: 8px;
+				padding: 28px 18px;
 			}
 		}
 	</style>
@@ -1400,171 +1013,109 @@
 <body>
 	<header>
 		<nav class="nav">
-			<a href="#home" class="logo">
-				HHM FILM
-				<span>PHOTO · VIDEO</span>
-			</a>
+			<div class="nav-head">
+				<a href="#home" class="logo">
+					HHM FILM
+					<span>PHOTO · VIDEO</span>
+				</a>
 
-			<div class="menu">
+				<button type="button" class="mobile-menu-btn" onclick="toggleMobileMenu(event)" aria-label="메뉴 열기" aria-controls="siteMenu" aria-expanded="false">
+					<span></span>
+					<span></span>
+					<span></span>
+				</button>
+			</div>
+
+			<div id="siteMenu" class="menu">
 				<a href="#home" class="menu-link">Home</a>
 
-				<div class="dropdown" id="photoDropdown">
-					<button type="button" class="dropdown-toggle" onclick="toggleDropdown(event)">
+				<div class="dropdown">
+					<button type="button" class="dropdown-toggle" onclick="toggleDropdown(event, this)">
 						Photography <span>▼</span>
 					</button>
-
 					<div class="dropdown-menu">
-						<a href="#performance" onclick="closeDropdown()">Performance</a>
-						<a href="#exhibition" onclick="closeDropdown()">Exhibition</a>
-						<a href="#festival" onclick="closeDropdown()">Festival / Event</a>
+						<a href="#performance" onclick="closeDropdowns()">Performance</a>
+						<a href="#exhibition" onclick="closeDropdowns()">Exhibition</a>
+						<a href="#festival" onclick="closeDropdowns()">Festival / Event</a>
 					</div>
 				</div>
 
 				<a href="#videography" class="menu-link">Videography</a>
+
 				<a href="#about" class="menu-link">About</a>
 			</div>
 		</nav>
 	</header>
 
 	<main>
-		<section id="home" class="hero">
-			<div class="hero-inner">
-				<div class="hero-grid">
-					<div>
-						<p class="section-kicker">Portfolio</p>
-						<h1 class="hero-title">Visual<br><em>Archive</em></h1>
-						<p class="hero-text">
-							공연, 전시, 축제, 행사 현장의 분위기와 순간을 사진과 영상으로 기록합니다.
-							작업의 흐름이 자연스럽게 보이도록 대표작과 카테고리별 포트폴리오를 구성했습니다.
-						</p>
-
-						<div class="hero-actions">
-							<a href="#photography" class="btn primary">Photography 보기</a>
-							<a href="#videography" class="btn">Videography 보기</a>
-						</div>
+		<section id="home" class="section featured snap-section">
+			<div class="featured-grid">
+				<div class="featured-block">
+					<div class="block-label">
+						<span>Photography 대표작</span>
+						<span>01</span>
 					</div>
-
-					<div class="hero-visual">
-						<div class="hero-card large">
-							<img src="https://picsum.photos/900/1125?random=101" alt="Main portfolio image">
-						</div>
-						<div class="hero-card small">
-							<img src="https://picsum.photos/600/750?random=102" alt="Sub portfolio image">
-						</div>
-						<div class="hero-card wide">
-							<img src="https://picsum.photos/900/560?random=103" alt="Wide portfolio image">
-						</div>
-						<div class="floating-label">PERFORMANCE · EXHIBITION · EVENT</div>
-					</div>
-				</div>
-
-				<div class="home-block">
-					<div class="block-head">
-						<h2 class="sub-title">Photography 대표작</h2>
-						<p class="block-desc">가로 슬라이더로 대표 사진 작업을 빠르게 확인할 수 있습니다.</p>
-					</div>
-
 					<div class="slider-wrap">
 						<button class="slider-btn prev" onclick="moveSlider('photoSlider', -1)">‹</button>
-
-						<div id="photoSlider" class="slider auto-scroll">
-							<div class="card" onclick="location.href='#performance'">
-								<div class="card-img">
-									<img src="https://picsum.photos/700/875?random=1" alt="Performance Project">
-									<div class="card-meta">
-										<p class="card-title">Performance Project</p>
-										<span class="card-type">Photo</span>
-									</div>
+						<div id="photoSlider" class="slider" data-auto-slider>
+							<div class="slide-card" onclick="location.href='#performance'">
+								<div class="slide-image">
+									<img src="https://picsum.photos/800/1000?random=1" alt="Performance 대표 이미지">
+									<div class="slide-info"><span>Performance</span><span>Photo</span></div>
 								</div>
 							</div>
-
-							<div class="card" onclick="location.href='#exhibition'">
-								<div class="card-img">
-									<img src="https://picsum.photos/700/875?random=2" alt="Exhibition Project">
-									<div class="card-meta">
-										<p class="card-title">Exhibition Project</p>
-										<span class="card-type">Photo</span>
-									</div>
+							<div class="slide-card" onclick="location.href='#exhibition'">
+								<div class="slide-image">
+									<img src="https://picsum.photos/800/1000?random=2" alt="Exhibition 대표 이미지">
+									<div class="slide-info"><span>Exhibition</span><span>Photo</span></div>
 								</div>
 							</div>
-
-							<div class="card" onclick="location.href='#festival'">
-								<div class="card-img">
-									<img src="https://picsum.photos/700/875?random=3" alt="Festival Project">
-									<div class="card-meta">
-										<p class="card-title">Festival Project</p>
-										<span class="card-type">Photo</span>
-									</div>
-								</div>
-							</div>
-
-							<div class="card" onclick="location.href='#festival'">
-								<div class="card-img">
-									<img src="https://picsum.photos/700/875?random=4" alt="Event Project">
-									<div class="card-meta">
-										<p class="card-title">Event Project</p>
-										<span class="card-type">Photo</span>
-									</div>
+							<div class="slide-card" onclick="location.href='#festival'">
+								<div class="slide-image">
+									<img src="https://picsum.photos/800/1000?random=3" alt="Festival 대표 이미지">
+									<div class="slide-info"><span>Festival / Event</span><span>Photo</span></div>
 								</div>
 							</div>
 						</div>
-
 						<button class="slider-btn next" onclick="moveSlider('photoSlider', 1)">›</button>
 					</div>
 				</div>
 
-				<div class="home-block">
-					<div class="block-head">
-						<h2 class="sub-title">Videography 대표작</h2>
-						<p class="block-desc">카드에서 바로 영상을 재생할 수 있습니다.</p>
+				<div class="featured-block black">
+					<div class="block-label">
+						<span>Videography 대표작</span>
+						<span>02</span>
 					</div>
-
 					<div class="slider-wrap">
 						<button class="slider-btn prev" onclick="moveSlider('videoSlider', -1)">‹</button>
-
-						<div id="videoSlider" class="slider auto-scroll">
-							<div class="card" onclick="location.href='#videography'">
-								<div class="card-img">
-									<img src="https://img.youtube.com/vi/wWBDJTvXNXw/maxresdefault.jpg" alt="김철진, 신지희의 산조">
-									<div class="card-meta">
-										<p class="card-title">김철진, 신지희의 산조</p>
-										<span class="card-type">Video</span>
-									</div>
+						<div id="videoSlider" class="slider" data-auto-slider>
+							<div class="slide-card">
+								<div class="slide-image">
+									<iframe class="video-embed" src="https://www.youtube.com/embed/wWBDJTvXNXw" title="김철진, 신지희의 산조" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
 								</div>
 							</div>
-
-							<div class="card" onclick="location.href='#videography'">
-								<div class="card-img">
-									<img src="https://img.youtube.com/vi/j0LQ1-_MH3U/maxresdefault.jpg" alt="시인詩,人 산정">
-									<div class="card-meta">
-										<p class="card-title">시인詩,人 산정</p>
-										<span class="card-type">Video</span>
-									</div>
+							<div class="slide-card">
+								<div class="slide-image">
+									<iframe class="video-embed" src="https://www.youtube.com/embed/j0LQ1-_MH3U" title="시인詩,人 산정" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
 								</div>
 							</div>
-
-							<div class="card" onclick="location.href='#videography'">
-								<div class="card-img">
-									<img src="https://img.youtube.com/vi/7OfULrhVASI/maxresdefault.jpg" alt="ADG7 Tiny Desk">
-									<div class="card-meta">
-										<p class="card-title">ADG7 Tiny Desk</p>
-										<span class="card-type">Video</span>
-									</div>
+							<div class="slide-card">
+								<div class="slide-image">
+									<iframe class="video-embed" src="https://www.youtube.com/embed/2At2KW_mgNQ" title="고영훈의 삶과 예술" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
 								</div>
 							</div>
 						</div>
-
 						<button class="slider-btn next" onclick="moveSlider('videoSlider', 1)">›</button>
 					</div>
 				</div>
 			</div>
 		</section>
 
-		<section id="photography" class="section">
-			<p class="section-kicker">Selected Works</p>
-			<h2 class="section-title">Photography</h2>
+		<section id="photography" class="section snap-section">
+			<p class="kicker">Photography</p>
+			<h2 class="section-title">Category<br>Archive</h2>
 
-			<div class="category-nav">
+			<div class="category-tabs">
 				<a href="#performance">Performance</a>
 				<a href="#exhibition">Exhibition</a>
 				<a href="#festival">Festival / Event</a>
@@ -1574,55 +1125,49 @@
 				<div class="photo-head">
 					<div>
 						<h3>Performance</h3>
-						<p>공연, 콘서트, 무대 현장 사진</p>
 					</div>
-					<button class="more-btn" onclick="toggleImages(this, 'performanceGrid')">더보기 +</button>
+					<button class="more-btn" onclick="toggleImages(this, 'performanceGrid')"><span>더보기 +</span></button>
 				</div>
-
 				<div id="performanceGrid" class="image-grid">
-					<div class="image-item tall" data-title="Performance 01"><img src="https://picsum.photos/500/800?random=11" alt=""></div>
-					<div class="image-item" data-title="Performance 02"><img src="https://picsum.photos/500/500?random=12" alt=""></div>
-					<div class="image-item" data-title="Performance 03"><img src="https://picsum.photos/500/500?random=13" alt=""></div>
-					<div class="image-item" data-title="Performance 04"><img src="https://picsum.photos/500/500?random=14" alt=""></div>
-					<div class="image-item" data-title="Performance 05"><img src="https://picsum.photos/500/500?random=15" alt=""></div>
-					<div class="image-item wide" data-title="Performance 06"><img src="https://picsum.photos/900/450?random=16" alt=""></div>
-					<div class="image-item" data-title="Performance 07"><img src="https://picsum.photos/500/500?random=17" alt=""></div>
-					<div class="image-item" data-title="Performance 08"><img src="https://picsum.photos/500/500?random=18" alt=""></div>
-
-					<div class="image-item hidden" data-title="Performance 09"><img src="https://picsum.photos/500/500?random=19" alt=""></div>
-					<div class="image-item hidden" data-title="Performance 10"><img src="https://picsum.photos/500/500?random=20" alt=""></div>
-					<div class="image-item hidden" data-title="Performance 11"><img src="https://picsum.photos/500/500?random=21" alt=""></div>
-					<div class="image-item hidden" data-title="Performance 12"><img src="https://picsum.photos/500/500?random=22" alt=""></div>
-					<div class="image-item hidden" data-title="Performance 13"><img src="https://picsum.photos/500/500?random=23" alt=""></div>
-					<div class="image-item hidden" data-title="Performance 14"><img src="https://picsum.photos/500/500?random=24" alt=""></div>
-					<div class="image-item hidden" data-title="Performance 15"><img src="https://picsum.photos/500/500?random=25" alt=""></div>
-					<div class="image-item hidden" data-title="Performance 16"><img src="https://picsum.photos/500/500?random=26" alt=""></div>
+					<div class="image-item" data-title="Performance 01"><img src="https://picsum.photos/700/700?random=11" alt=""></div>
+					<div class="image-item" data-title="Performance 02"><img src="https://picsum.photos/700/700?random=12" alt=""></div>
+					<div class="image-item" data-title="Performance 03"><img src="https://picsum.photos/700/700?random=13" alt=""></div>
+					<div class="image-item" data-title="Performance 04"><img src="https://picsum.photos/700/700?random=14" alt=""></div>
+					<div class="image-item" data-title="Performance 05"><img src="https://picsum.photos/700/700?random=15" alt=""></div>
+					<div class="image-item" data-title="Performance 06"><img src="https://picsum.photos/700/700?random=16" alt=""></div>
+					<div class="image-item" data-title="Performance 07"><img src="https://picsum.photos/700/700?random=17" alt=""></div>
+					<div class="image-item" data-title="Performance 08"><img src="https://picsum.photos/700/700?random=18" alt=""></div>
+					<div class="image-item hidden" data-title="Performance 09"><img src="https://picsum.photos/700/700?random=19" alt=""></div>
+					<div class="image-item hidden" data-title="Performance 10"><img src="https://picsum.photos/700/700?random=20" alt=""></div>
+					<div class="image-item hidden" data-title="Performance 11"><img src="https://picsum.photos/700/700?random=21" alt=""></div>
+					<div class="image-item hidden" data-title="Performance 12"><img src="https://picsum.photos/700/700?random=22" alt=""></div>
+					<div class="image-item hidden" data-title="Performance 13"><img src="https://picsum.photos/700/700?random=23" alt=""></div>
+					<div class="image-item hidden" data-title="Performance 14"><img src="https://picsum.photos/700/700?random=24" alt=""></div>
+					<div class="image-item hidden" data-title="Performance 15"><img src="https://picsum.photos/700/700?random=25" alt=""></div>
+					<div class="image-item hidden" data-title="Performance 16"><img src="https://picsum.photos/700/700?random=26" alt=""></div>
 				</div>
 			</section>
 
-			<section id="exhibition" class="photo-section">
+			<section id="exhibition" class="photo-section black-row">
 				<div class="photo-head">
 					<div>
 						<h3>Exhibition</h3>
-						<p>전시, 공간, 브랜드 아카이브 사진</p>
 					</div>
-					<button class="more-btn" onclick="toggleImages(this, 'exhibitionGrid')">더보기 +</button>
+					<button class="more-btn" onclick="toggleImages(this, 'exhibitionGrid')"><span>더보기 +</span></button>
 				</div>
-
 				<div id="exhibitionGrid" class="image-grid">
-					<div class="image-item wide" data-title="Exhibition 01"><img src="https://picsum.photos/900/450?random=31" alt=""></div>
-					<div class="image-item" data-title="Exhibition 02"><img src="https://picsum.photos/500/500?random=32" alt=""></div>
-					<div class="image-item" data-title="Exhibition 03"><img src="https://picsum.photos/500/500?random=33" alt=""></div>
-					<div class="image-item" data-title="Exhibition 04"><img src="https://picsum.photos/500/500?random=34" alt=""></div>
-					<div class="image-item tall" data-title="Exhibition 05"><img src="https://picsum.photos/500/800?random=35" alt=""></div>
-					<div class="image-item" data-title="Exhibition 06"><img src="https://picsum.photos/500/500?random=36" alt=""></div>
-					<div class="image-item" data-title="Exhibition 07"><img src="https://picsum.photos/500/500?random=37" alt=""></div>
-					<div class="image-item" data-title="Exhibition 08"><img src="https://picsum.photos/500/500?random=38" alt=""></div>
-
-					<div class="image-item hidden" data-title="Exhibition 09"><img src="https://picsum.photos/500/500?random=39" alt=""></div>
-					<div class="image-item hidden" data-title="Exhibition 10"><img src="https://picsum.photos/500/500?random=40" alt=""></div>
-					<div class="image-item hidden" data-title="Exhibition 11"><img src="https://picsum.photos/500/500?random=41" alt=""></div>
-					<div class="image-item hidden" data-title="Exhibition 12"><img src="https://picsum.photos/500/500?random=42" alt=""></div>
+					<div class="image-item" data-title="Exhibition 01"><img src="https://picsum.photos/700/700?random=31" alt=""></div>
+					<div class="image-item" data-title="Exhibition 02"><img src="https://picsum.photos/700/700?random=32" alt=""></div>
+					<div class="image-item" data-title="Exhibition 03"><img src="https://picsum.photos/700/700?random=33" alt=""></div>
+					<div class="image-item" data-title="Exhibition 04"><img src="https://picsum.photos/700/700?random=34" alt=""></div>
+					<div class="image-item" data-title="Exhibition 05"><img src="https://picsum.photos/700/700?random=35" alt=""></div>
+					<div class="image-item" data-title="Exhibition 06"><img src="https://picsum.photos/700/700?random=36" alt=""></div>
+					<div class="image-item" data-title="Exhibition 07"><img src="https://picsum.photos/700/700?random=37" alt=""></div>
+					<div class="image-item" data-title="Exhibition 08"><img src="https://picsum.photos/700/700?random=38" alt=""></div>
+					<div class="image-item hidden" data-title="Exhibition 09"><img src="https://picsum.photos/700/700?random=39" alt=""></div>
+					<div class="image-item hidden" data-title="Exhibition 10"><img src="https://picsum.photos/700/700?random=40" alt=""></div>
+					<div class="image-item hidden" data-title="Exhibition 11"><img src="https://picsum.photos/700/700?random=41" alt=""></div>
+					<div class="image-item hidden" data-title="Exhibition 12"><img src="https://picsum.photos/700/700?random=42" alt=""></div>
 				</div>
 			</section>
 
@@ -1630,216 +1175,105 @@
 				<div class="photo-head">
 					<div>
 						<h3>Festival / Event</h3>
-						<p>축제, 행사, 현장 스케치 사진</p>
 					</div>
-					<button class="more-btn" onclick="toggleImages(this, 'festivalGrid')">더보기 +</button>
+					<button class="more-btn" onclick="toggleImages(this, 'festivalGrid')"><span>더보기 +</span></button>
 				</div>
-
 				<div id="festivalGrid" class="image-grid">
-					<div class="image-item" data-title="Festival 01"><img src="https://picsum.photos/500/500?random=51" alt=""></div>
-					<div class="image-item tall" data-title="Festival 02"><img src="https://picsum.photos/500/800?random=52" alt=""></div>
-					<div class="image-item" data-title="Festival 03"><img src="https://picsum.photos/500/500?random=53" alt=""></div>
-					<div class="image-item" data-title="Festival 04"><img src="https://picsum.photos/500/500?random=54" alt=""></div>
-					<div class="image-item wide" data-title="Festival 05"><img src="https://picsum.photos/900/450?random=55" alt=""></div>
-					<div class="image-item" data-title="Festival 06"><img src="https://picsum.photos/500/500?random=56" alt=""></div>
-					<div class="image-item" data-title="Festival 07"><img src="https://picsum.photos/500/500?random=57" alt=""></div>
-					<div class="image-item" data-title="Festival 08"><img src="https://picsum.photos/500/500?random=58" alt=""></div>
-
-					<div class="image-item hidden" data-title="Festival 09"><img src="https://picsum.photos/500/500?random=59" alt=""></div>
-					<div class="image-item hidden" data-title="Festival 10"><img src="https://picsum.photos/500/500?random=60" alt=""></div>
-					<div class="image-item hidden" data-title="Festival 11"><img src="https://picsum.photos/500/500?random=61" alt=""></div>
-					<div class="image-item hidden" data-title="Festival 12"><img src="https://picsum.photos/500/500?random=62" alt=""></div>
+					<div class="image-item" data-title="Festival 01"><img src="https://picsum.photos/700/700?random=51" alt=""></div>
+					<div class="image-item" data-title="Festival 02"><img src="https://picsum.photos/700/700?random=52" alt=""></div>
+					<div class="image-item" data-title="Festival 03"><img src="https://picsum.photos/700/700?random=53" alt=""></div>
+					<div class="image-item" data-title="Festival 04"><img src="https://picsum.photos/700/700?random=54" alt=""></div>
+					<div class="image-item" data-title="Festival 05"><img src="https://picsum.photos/700/700?random=55" alt=""></div>
+					<div class="image-item" data-title="Festival 06"><img src="https://picsum.photos/700/700?random=56" alt=""></div>
+					<div class="image-item" data-title="Festival 07"><img src="https://picsum.photos/700/700?random=57" alt=""></div>
+					<div class="image-item" data-title="Festival 08"><img src="https://picsum.photos/700/700?random=58" alt=""></div>
+					<div class="image-item hidden" data-title="Festival 09"><img src="https://picsum.photos/700/700?random=59" alt=""></div>
+					<div class="image-item hidden" data-title="Festival 10"><img src="https://picsum.photos/700/700?random=60" alt=""></div>
+					<div class="image-item hidden" data-title="Festival 11"><img src="https://picsum.photos/700/700?random=61" alt=""></div>
+					<div class="image-item hidden" data-title="Festival 12"><img src="https://picsum.photos/700/700?random=62" alt=""></div>
 				</div>
 			</section>
 		</section>
 
-		<section id="videography" class="section">
-			<p class="section-kicker">Embedded Films</p>
-			<h2 class="section-title">Videography</h2>
-
-			<p class="video-intro">
-				영상은 페이지 안에서 바로 재생할 수 있도록 YouTube 임베드 형식으로 구성했습니다.
-				각 프로젝트별로 여러 개의 영상을 묶어 보여줄 수 있습니다.
-			</p>
-
-			<section class="video-project">
-				<div class="video-project-head">
-					<h3 class="video-project-title">김철진, 신지희의 산조 &lt;緣(연)&gt;</h3>
-					<span class="video-project-category">Performance</span>
-				</div>
-
-				<div class="video-grid">
-					<div class="video-card">
-						<div class="video-frame">
-							<button type="button" class="video-placeholder" onclick="loadVideo(this, 'wWBDJTvXNXw', '김철진, 신지희의 산조 \'緣(연)\' - 아쟁·거문고 산조병주')" aria-label="영상 재생: 김철진, 신지희의 산조 '緣(연)' - 아쟁·거문고 산조병주">
-								<img src="https://img.youtube.com/vi/wWBDJTvXNXw/maxresdefault.jpg" alt="김철진, 신지희의 산조 '緣(연)' - 아쟁·거문고 산조병주">
-								<span class="video-play-icon">▶</span>
-							</button>
+		<section id="videography" class="section black snap-section">
+			<div class="section-inner">
+				<p class="kicker">Videography</p>
+				<h2 class="section-title">Project<br>Films</h2>
+				<section id="video-sanejo" class="video-project">
+					<div class="video-project-head">
+						<h3 class="video-project-title">김철진, 신지희의 산조 &lt;緣(연)&gt;</h3>
+						<span class="video-project-category">Performance</span>
+					</div>
+					<div class="video-grid">
+						<div class="video-card">
+							<div class="video-thumb">
+								<iframe class="video-embed" src="https://www.youtube.com/embed/wWBDJTvXNXw" title="緣(연) 01" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+							</div>
+							<div class="video-info"><h4 class="video-title">緣(연) 01</h4></div>
 						</div>
-						<div class="video-info">
-							<h4 class="video-title">김철진, 신지희의 산조 &lt;緣(연)&gt; 01</h4>
-							<p class="video-desc">공연 영상</p>
+						<div class="video-card">
+							<div class="video-thumb">
+								<iframe class="video-embed" src="https://www.youtube.com/embed/ByIw3WirpG8" title="緣(연) 02" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+							</div>
+							<div class="video-info"><h4 class="video-title">緣(연) 02</h4></div>
 						</div>
 					</div>
+				</section>
 
-					<div class="video-card">
-						<div class="video-frame">
-							<button type="button" class="video-placeholder" onclick="loadVideo(this, 'ByIw3WirpG8', '김철진, 신지희의 산조 \'緣(연)\' - 강태홍류 가야금산조')" aria-label="영상 재생: 김철진, 신지희의 산조 '緣(연)' - 강태홍류 가야금산조">
-								<img src="https://img.youtube.com/vi/ByIw3WirpG8/maxresdefault.jpg" alt="김철진, 신지희의 산조 '緣(연)' - 강태홍류 가야금산조">
-								<span class="video-play-icon">▶</span>
-							</button>
+				<section id="video-sanjeong" class="video-project">
+					<div class="video-project-head">
+						<h3 class="video-project-title">5주기 추모전 &lt;시인詩,人 산정&gt;</h3>
+						<span class="video-project-category">Exhibition</span>
+					</div>
+					<div class="video-grid">
+						<div class="video-card">
+							<div class="video-thumb">
+								<iframe class="video-embed" src="https://www.youtube.com/embed/j0LQ1-_MH3U" title="티저" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+							</div>
+							<div class="video-info"><h4 class="video-title">티저</h4></div>
 						</div>
-						<div class="video-info">
-							<h4 class="video-title">김철진, 신지희의 산조 &lt;緣(연)&gt; 02</h4>
-							<p class="video-desc">공연 영상</p>
+						<div class="video-card">
+							<div class="video-thumb">
+								<iframe class="video-embed" src="https://www.youtube.com/embed/Ta_8Xs7yJo8" title="전시소개" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+							</div>
+							<div class="video-info"><h4 class="video-title">전시소개</h4></div>
 						</div>
 					</div>
+				</section>
 
-					<div class="video-card">
-						<div class="video-frame">
-							<button type="button" class="video-placeholder" onclick="loadVideo(this, 'E-SU18WzHVA', '김철진, 신지희의 산조 \'緣(연)\' - 한갑득류 거문고산조')" aria-label="영상 재생: 김철진, 신지희의 산조 '緣(연)' - 한갑득류 거문고산조">
-								<img src="https://img.youtube.com/vi/E-SU18WzHVA/maxresdefault.jpg" alt="김철진, 신지희의 산조 '緣(연)' - 한갑득류 거문고산조">
-								<span class="video-play-icon">▶</span>
-							</button>
-						</div>
-						<div class="video-info">
-							<h4 class="video-title">김철진, 신지희의 산조 &lt;緣(연)&gt; 03</h4>
-							<p class="video-desc">공연 영상</p>
+				<section id="video-interview" class="video-project">
+					<div class="video-project-head">
+						<h3 class="video-project-title">&lt;고영훈의 삶과 예술&gt; 작가 인터뷰</h3>
+						<span class="video-project-category">Interview</span>
+					</div>
+					<div class="video-grid">
+						<div class="video-card">
+							<div class="video-thumb">
+								<iframe class="video-embed" src="https://www.youtube.com/embed/2At2KW_mgNQ" title="고영훈 작가 인터뷰" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+							</div>
+							<div class="video-info"><h4 class="video-title">고영훈 작가 인터뷰</h4></div>
 						</div>
 					</div>
-				</div>
-			</section>
-
-			<section class="video-project">
-				<div class="video-project-head">
-					<h3 class="video-project-title">5주기 추모전 &lt;시인詩,人 산정&gt; | 성북구립미술관</h3>
-					<span class="video-project-category">Exhibition</span>
-				</div>
-
-				<div class="video-grid">
-					<div class="video-card">
-						<div class="video-frame">
-							<button type="button" class="video-placeholder" onclick="loadVideo(this, 'j0LQ1-_MH3U', '[Teaser]《시인詩,人 산정》展 │성북구립미술관')" aria-label="영상 재생: [Teaser]《시인詩,人 산정》展 │성북구립미술관">
-								<img src="https://img.youtube.com/vi/j0LQ1-_MH3U/maxresdefault.jpg" alt="[Teaser]《시인詩,人 산정》展 │성북구립미술관">
-								<span class="video-play-icon">▶</span>
-							</button>
-						</div>
-						<div class="video-info">
-							<h4 class="video-title">티저</h4>
-							<p class="video-desc">5주기 추모전 티저 영상</p>
-						</div>
-					</div>
-
-					<div class="video-card">
-						<div class="video-frame">
-							<button type="button" class="video-placeholder" onclick="loadVideo(this, 'Ta_8Xs7yJo8', '[전시소개] 서세옥 5주기 추모전 《시인詩,人 산정》│성북구립미술관')" aria-label="영상 재생: [전시소개] 서세옥 5주기 추모전 《시인詩,人 산정》│성북구립미술관">
-								<img src="https://img.youtube.com/vi/Ta_8Xs7yJo8/maxresdefault.jpg" alt="[전시소개] 서세옥 5주기 추모전 《시인詩,人 산정》│성북구립미술관">
-								<span class="video-play-icon">▶</span>
-							</button>
-						</div>
-						<div class="video-info">
-							<h4 class="video-title">전시소개</h4>
-							<p class="video-desc">성북구립미술관 전시소개 영상</p>
-						</div>
-					</div>
-				</div>
-			</section>
-
-			<section class="video-project">
-				<div class="video-project-head">
-					<h3 class="video-project-title">&lt;고영훈의 삶과 예술&gt; 작가 인터뷰</h3>
-					<span class="video-project-category">Interview</span>
-				</div>
-
-				<div class="video-grid">
-					<div class="video-card">
-						<div class="video-frame">
-							<button type="button" class="video-placeholder" onclick="loadVideo(this, '2At2KW_mgNQ', '[고영훈 작가 인터뷰] 고영훈의 삶과 예술')" aria-label="영상 재생: [고영훈 작가 인터뷰] 고영훈의 삶과 예술">
-								<img src="https://img.youtube.com/vi/2At2KW_mgNQ/maxresdefault.jpg" alt="[고영훈 작가 인터뷰] 고영훈의 삶과 예술">
-								<span class="video-play-icon">▶</span>
-							</button>
-						</div>
-						<div class="video-info">
-							<h4 class="video-title">&lt;고영훈의 삶과 예술&gt; 작가 인터뷰</h4>
-							<p class="video-desc">작가 인터뷰 영상</p>
-						</div>
-					</div>
-				</div>
-			</section>
-
-			<section class="video-project">
-				<div class="video-project-head">
-					<h3 class="video-project-title">서울시무용단 〈일무〉 | 세종문화회관 메이킹 필름</h3>
-					<span class="video-project-category">Making Film</span>
-				</div>
-
-				<div class="video-grid">
-					<div class="video-card">
-						<div class="video-frame">
-							<button type="button" class="video-placeholder" onclick="loadVideo(this, 'l2LC34gNu5w', '서울시무용단 〈일무〉 메이킹 필름: How we line in One | 세종문화회관')" aria-label="영상 재생: 서울시무용단 〈일무〉 메이킹 필름: How we line in One | 세종문화회관">
-								<img src="https://img.youtube.com/vi/l2LC34gNu5w/maxresdefault.jpg" alt="서울시무용단 〈일무〉 메이킹 필름: How we line in One | 세종문화회관">
-								<span class="video-play-icon">▶</span>
-							</button>
-						</div>
-						<div class="video-info">
-							<h4 class="video-title">How we line in One</h4>
-							<p class="video-desc">세종문화회관 메이킹 필름</p>
-						</div>
-					</div>
-				</div>
-			</section>
-
-			<section class="video-project">
-				<div class="video-project-head">
-					<h3 class="video-project-title">ADG7: Tiny Desk (Home) Concert</h3>
-					<span class="video-project-category">Concert</span>
-				</div>
-
-				<div class="video-grid">
-					<div class="video-card">
-						<div class="video-frame">
-							<button type="button" class="video-placeholder" onclick="loadVideo(this, '7OfULrhVASI', 'ADG7: Tiny Desk (Home) Concert')" aria-label="영상 재생: ADG7: Tiny Desk (Home) Concert">
-								<img src="https://img.youtube.com/vi/7OfULrhVASI/maxresdefault.jpg" alt="ADG7: Tiny Desk (Home) Concert">
-								<span class="video-play-icon">▶</span>
-							</button>
-						</div>
-						<div class="video-info">
-							<h4 class="video-title">ADG7: Tiny Desk (Home) Concert</h4>
-							<p class="video-desc">콘서트 영상</p>
-						</div>
-					</div>
-				</div>
-			</section>
+				</section>
+			</div>
 		</section>
 
-		<section id="about" class="section">
-			<p class="section-kicker">Contact</p>
-			<h2 class="section-title">About</h2>
+		<section id="about" class="section snap-section">
+			<p class="kicker">About</p>
+			<h2 class="section-title">HHM<br>Film</h2>
 
 			<div class="about-wrap">
-				<p class="about-text">
-					HHM FILM은 공연, 전시, 축제, 행사 현장의 순간을 기록하는 포트폴리오입니다.
-					사진은 카테고리별로 정리하고, 영상은 프로젝트별 페이지 내 재생이 가능하도록 구성했습니다.
-					실제 소개글, 작업 이력, 연락처, 인스타그램 링크 등을 이 영역에 작성하면 됩니다.
-				</p>
+				<div class="about-text">
+					<h3>작가의 말</h3>
+					<p>공연의 움직임, 전시 공간의 분위기, 축제와 행사 현장의 흐름을 사진과 영상으로 기록합니다.</p>
+					<p>현장에서 마주한 빛, 사람, 순간의 감각이 오래 남을 수 있도록 차분하고 선명한 시선으로 작업합니다.</p>
+				</div>
 
 				<div class="about-info">
-					<div class="info-row">
-						<strong>Category</strong>
-						<span>Photo / Video</span>
-					</div>
-					<div class="info-row">
-						<strong>Works</strong>
-						<span>Performance, Exhibition, Event</span>
-					</div>
-					<div class="info-row">
-						<strong>Email</strong>
-						<span>yourmail@example.com</span>
-					</div>
-					<div class="info-row">
-						<strong>Instagram</strong>
-						<span>@your_account</span>
-					</div>
+					<div class="info-row"><strong>Name</strong><span>황혜민</span></div>
+					<div class="info-row"><strong>Email</strong><span>xo7652@naver.com</span></div>
+					<div class="info-row"><strong>Instagram</strong><span><a href="https://www.instagram.com/h.wang_h" target="_blank" rel="noopener noreferrer">@h.wang_h</a></span></div>
+					<div class="info-row"><strong>Category</strong><span>Photo / Video</span></div>
 				</div>
 			</div>
 		</section>
@@ -1855,74 +1289,122 @@
 	</div>
 
 	<script>
-		function loadVideo(button, videoId, title) {
-			const frame = document.createElement('iframe');
-			let embedUrl = `https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0&modestbranding=1&playsinline=1`;
-			
-			if (window.location.protocol !== 'file:') {
-				const origin = encodeURIComponent(window.location.origin);
-				embedUrl += `&origin=${origin}`;
-			}
-
-			frame.src = embedUrl;
-			frame.title = title;
-			frame.frameBorder = '0';
-			frame.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share';
-			frame.referrerPolicy = 'strict-origin-when-cross-origin';
-			frame.allowFullscreen = true;
-
-			button.replaceWith(frame);
-		}
-
 		function moveSlider(id, direction) {
 			const slider = document.getElementById(id);
-			const moveWidth = 414;
+			const card = slider.querySelector('.slide-card');
+
+			if (!card) {
+				return;
+			}
+
+			const gap = 20;
+			const moveWidth = card.offsetWidth + gap;
 			slider.scrollLeft += moveWidth * direction;
 		}
 
-		function toggleDropdown(event) {
+		function startAutoSliders() {
+			const sliders = document.querySelectorAll('[data-auto-slider]');
+
+			sliders.forEach((slider) => {
+				let paused = false;
+
+				slider.addEventListener('mouseenter', () => paused = true);
+				slider.addEventListener('mouseleave', () => paused = false);
+				slider.addEventListener('touchstart', () => paused = true, { passive: true });
+				slider.addEventListener('touchend', () => paused = false);
+
+				setInterval(() => {
+					if (paused) {
+						return;
+					}
+
+					const card = slider.querySelector('.slide-card');
+
+					if (!card) {
+						return;
+					}
+
+					const gap = 20;
+					const moveWidth = card.offsetWidth + gap;
+					const maxScroll = slider.scrollWidth - slider.clientWidth - 5;
+
+					if (slider.scrollLeft >= maxScroll) {
+						slider.scrollTo({ left: 0, behavior: 'smooth' });
+						return;
+					}
+
+					slider.scrollBy({ left: moveWidth, behavior: 'smooth' });
+				}, 7600);
+			});
+		}
+
+		function toggleMobileMenu(event) {
 			event.stopPropagation();
-			const dropdown = document.getElementById('photoDropdown');
-			dropdown.classList.toggle('open');
+
+			const menu = document.getElementById('siteMenu');
+			const button = document.querySelector('.mobile-menu-btn');
+			const isOpen = menu.classList.toggle('open');
+
+			button.classList.toggle('open', isOpen);
+			button.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+			button.setAttribute('aria-label', isOpen ? '메뉴 닫기' : '메뉴 열기');
 		}
 
-		function closeDropdown() {
-			const dropdown = document.getElementById('photoDropdown');
-			if(dropdown) dropdown.classList.remove('open');
+		function closeMobileMenu() {
+			const menu = document.getElementById('siteMenu');
+			const button = document.querySelector('.mobile-menu-btn');
+
+			if (!menu || !button) {
+				return;
+			}
+
+			menu.classList.remove('open');
+			button.classList.remove('open');
+			button.setAttribute('aria-expanded', 'false');
+			button.setAttribute('aria-label', '메뉴 열기');
 		}
 
-		document.addEventListener('click', () => {
-			closeDropdown();
-		});
+		function toggleDropdown(event, button) {
+			event.stopPropagation();
+
+			const current = button.closest('.dropdown');
+
+			document.querySelectorAll('.dropdown').forEach((dropdown) => {
+				if (dropdown !== current) {
+					dropdown.classList.remove('open');
+				}
+			});
+
+			current.classList.toggle('open');
+		}
+
+		function closeDropdowns() {
+			document.querySelectorAll('.dropdown').forEach((dropdown) => {
+				dropdown.classList.remove('open');
+			});
+		}
 
 		function toggleImages(button, gridId) {
 			const grid = document.getElementById(gridId);
 			const isOpen = button.dataset.open === 'true';
+			const items = grid.querySelectorAll('.image-item');
+			const text = button.querySelector('span');
 
 			if (isOpen) {
-				const items = grid.querySelectorAll('.image-item');
 				items.forEach((item, index) => {
 					if (index >= 8) {
 						item.classList.add('hidden');
 					}
 				});
 
-				button.textContent = '더보기 +';
+				text.textContent = '더보기 +';
 				button.dataset.open = 'false';
-
-				grid.closest('.photo-section').scrollIntoView({
-					behavior: 'smooth',
-					block: 'start'
-				});
+				grid.closest('.photo-section').scrollIntoView({ behavior: 'smooth', block: 'start' });
 				return;
 			}
 
-			const hiddenItems = grid.querySelectorAll('.image-item.hidden');
-			hiddenItems.forEach(item => {
-				item.classList.remove('hidden');
-			});
-
-			button.textContent = '접기 -';
+			items.forEach((item) => item.classList.remove('hidden'));
+			text.textContent = '접기 -';
 			button.dataset.open = 'true';
 		}
 
@@ -1932,72 +1414,42 @@
 
 			image.src = src;
 			lightbox.classList.add('open');
-			document.body.style.overflow = 'hidden'; // 뒷배경 스크롤 차단
 		}
 
 		function closeLightbox() {
-			const lightbox = document.getElementById('lightbox');
-			if(lightbox) {
-				lightbox.classList.remove('open');
-				document.body.style.overflow = ''; // 스크롤 복구
-			}
+			document.getElementById('lightbox').classList.remove('open');
 		}
 
+		document.addEventListener('click', (event) => {
+			if (!event.target.closest('header')) {
+				closeMobileMenu();
+			}
+
+			closeDropdowns();
+		});
+
+		document.querySelectorAll('#siteMenu a').forEach((link) => {
+			link.addEventListener('click', () => {
+				closeMobileMenu();
+				closeDropdowns();
+			});
+		});
+
 		document.querySelectorAll('.image-item img').forEach((image) => {
-			image.addEventListener('click', (e) => {
-				e.stopPropagation();
+			image.addEventListener('click', () => {
 				openLightbox(image.src);
 			});
 		});
 
 		document.addEventListener('keydown', (event) => {
 			if (event.key === 'Escape') {
+				closeMobileMenu();
+				closeDropdowns();
 				closeLightbox();
-				closeDropdown();
 			}
 		});
 
-		function startAutoSlider(id) {
-			const slider = document.getElementById(id);
-			if (!slider) return;
-
-			let isPaused = false;
-			let intervalId;
-
-			const startInterval = () => {
-				intervalId = setInterval(() => {
-					if (isPaused) return;
-
-					const maxScroll = slider.scrollWidth - slider.clientWidth;
-					if (maxScroll <= 0) return;
-
-					if (slider.scrollLeft >= maxScroll - 6) {
-						slider.scrollTo({ left: 0, behavior: 'smooth' });
-					} else {
-						slider.scrollBy({ left: 414, behavior: 'smooth' });
-					}
-				}, 2600);
-			};
-
-			slider.addEventListener('mouseenter', () => { isPaused = true; });
-			slider.addEventListener('mouseleave', () => { isPaused = false; });
-			
-			// 터치 중 자동스크롤 타이머 정지 (화면 떨림 방지)
-			slider.addEventListener('touchstart', () => { 
-				isPaused = true; 
-				clearInterval(intervalId);
-			}, { passive: true });
-
-			slider.addEventListener('touchend', () => { 
-				isPaused = false; 
-				startInterval();
-			});
-
-			startInterval();
-		}
-
-		startAutoSlider('photoSlider');
-		startAutoSlider('videoSlider');
+		startAutoSliders();
 	</script>
 </body>
 </html>
