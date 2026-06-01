@@ -1,0 +1,664 @@
+html = r'''<!DOCTYPE html>
+<html lang="ko">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Hyemin Portfolio</title>
+
+	<style>
+		* {
+			box-sizing: border-box;
+			margin: 0;
+			padding: 0;
+		}
+
+		html {
+			scroll-behavior: smooth;
+		}
+
+		body {
+			font-family: Arial, Helvetica, sans-serif;
+			color: #111;
+			background: #fff;
+		}
+
+		a {
+			color: inherit;
+			text-decoration: none;
+		}
+
+		img {
+			width: 100%;
+			height: 100%;
+			display: block;
+			object-fit: cover;
+		}
+
+		header {
+			position: fixed;
+			top: 0;
+			left: 0;
+			z-index: 100;
+			width: 100%;
+			background: rgba(255, 255, 255, 0.92);
+			backdrop-filter: blur(10px);
+			border-bottom: 1px solid #eee;
+		}
+
+		.nav {
+			display: flex;
+			align-items: center;
+			justify-content: space-between;
+			max-width: 1280px;
+			margin: 0 auto;
+			padding: 22px 40px;
+		}
+
+		.logo {
+			font-size: 18px;
+			font-weight: 700;
+			letter-spacing: 1px;
+		}
+
+		.menu {
+			display: flex;
+			gap: 32px;
+			font-size: 14px;
+			letter-spacing: 0.5px;
+		}
+
+		.menu a {
+			position: relative;
+			padding-bottom: 4px;
+		}
+
+		.menu a::after {
+			content: "";
+			position: absolute;
+			left: 0;
+			bottom: 0;
+			width: 0;
+			height: 1px;
+			background: #111;
+			transition: 0.25s;
+		}
+
+		.menu a:hover::after {
+			width: 100%;
+		}
+
+		main {
+			padding-top: 78px;
+		}
+
+		.section {
+			max-width: 1280px;
+			margin: 0 auto;
+			padding: 90px 40px;
+		}
+
+		.section-title {
+			margin-bottom: 36px;
+			font-size: 42px;
+			font-weight: 500;
+			letter-spacing: -1px;
+		}
+
+		.sub-title {
+			margin-bottom: 22px;
+			font-size: 24px;
+			font-weight: 500;
+		}
+
+		.hero {
+			border-bottom: 1px solid #eee;
+		}
+
+		.hero-inner {
+			max-width: 1280px;
+			width: 100%;
+			margin: 0 auto;
+			padding: 90px 40px;
+		}
+
+		.hero-title {
+			margin-bottom: 18px;
+			font-size: 64px;
+			font-weight: 500;
+			letter-spacing: -2px;
+		}
+
+		.hero-text {
+			max-width: 560px;
+			font-size: 18px;
+			line-height: 1.7;
+			color: #555;
+		}
+
+		.home-block {
+			margin-top: 70px;
+		}
+
+		.slider-wrap {
+			position: relative;
+		}
+
+		.slider {
+			display: flex;
+			gap: 24px;
+			overflow-x: auto;
+			scroll-behavior: smooth;
+			padding-bottom: 16px;
+		}
+
+		.slider::-webkit-scrollbar {
+			height: 6px;
+		}
+
+		.slider::-webkit-scrollbar-thumb {
+			background: #ccc;
+			border-radius: 100px;
+		}
+
+		.card {
+			flex: 0 0 360px;
+			cursor: pointer;
+		}
+
+		.card-img {
+			aspect-ratio: 4 / 5;
+			background: #eee;
+			overflow: hidden;
+		}
+
+		.card-title {
+			margin-top: 12px;
+			font-size: 15px;
+			color: #333;
+		}
+
+		.slider-btn {
+			position: absolute;
+			top: 43%;
+			transform: translateY(-50%);
+			width: 42px;
+			height: 42px;
+			border: 1px solid #ddd;
+			border-radius: 50%;
+			background: #fff;
+			cursor: pointer;
+			font-size: 22px;
+		}
+
+		.slider-btn.prev {
+			left: -20px;
+		}
+
+		.slider-btn.next {
+			right: -20px;
+		}
+
+		.category-nav {
+			display: flex;
+			gap: 18px;
+			margin-bottom: 70px;
+			flex-wrap: wrap;
+		}
+
+		.category-nav a {
+			padding: 12px 22px;
+			border: 1px solid #111;
+			border-radius: 999px;
+			font-size: 14px;
+			transition: 0.25s;
+		}
+
+		.category-nav a:hover {
+			background: #111;
+			color: #fff;
+		}
+
+		.photo-section {
+			padding: 60px 0;
+			border-top: 1px solid #eee;
+			scroll-margin-top: 90px;
+		}
+
+		.photo-head {
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+			margin-bottom: 26px;
+		}
+
+		.photo-head h3 {
+			font-size: 28px;
+			font-weight: 500;
+		}
+
+		.more-btn {
+			border: none;
+			background: transparent;
+			font-size: 15px;
+			cursor: pointer;
+		}
+
+		.image-grid {
+			display: grid;
+			grid-template-columns: repeat(4, 1fr);
+			gap: 18px;
+		}
+
+		.image-item {
+			aspect-ratio: 1 / 1;
+			background: #eee;
+			overflow: hidden;
+		}
+
+		.image-item.hidden {
+			display: none;
+		}
+
+		.video-grid {
+			display: grid;
+			grid-template-columns: repeat(2, 1fr);
+			gap: 28px;
+		}
+
+		.video-card {
+			display: block;
+		}
+
+		.video-thumb {
+			position: relative;
+			aspect-ratio: 16 / 9;
+			background: #eee;
+			overflow: hidden;
+		}
+
+		.video-thumb::after {
+			content: "▶";
+			position: absolute;
+			left: 50%;
+			top: 50%;
+			transform: translate(-50%, -50%);
+			width: 58px;
+			height: 58px;
+			line-height: 58px;
+			text-align: center;
+			border-radius: 50%;
+			background: rgba(255, 255, 255, 0.85);
+			font-size: 22px;
+		}
+
+		.video-title {
+			margin-top: 14px;
+			font-size: 18px;
+			font-weight: 500;
+		}
+
+		.video-desc {
+			margin-top: 6px;
+			color: #666;
+			font-size: 14px;
+		}
+
+		.about-text {
+			max-width: 720px;
+			font-size: 18px;
+			line-height: 1.8;
+			color: #444;
+		}
+
+		footer {
+			padding: 40px;
+			border-top: 1px solid #eee;
+			text-align: center;
+			color: #777;
+			font-size: 13px;
+		}
+
+		@media (max-width: 900px) {
+			.nav {
+				padding: 18px 20px;
+			}
+
+			.menu {
+				gap: 16px;
+				font-size: 13px;
+			}
+
+			.section {
+				padding: 70px 20px;
+			}
+
+			.hero-inner {
+				padding: 70px 20px;
+			}
+
+			.hero-title {
+				font-size: 42px;
+			}
+
+			.section-title {
+				font-size: 34px;
+			}
+
+			.card {
+				flex-basis: 260px;
+			}
+
+			.slider-btn {
+				display: none;
+			}
+
+			.image-grid {
+				grid-template-columns: repeat(2, 1fr);
+				gap: 12px;
+			}
+
+			.video-grid {
+				grid-template-columns: 1fr;
+			}
+		}
+
+		@media (max-width: 520px) {
+			.nav {
+				flex-direction: column;
+				align-items: flex-start;
+				gap: 14px;
+			}
+
+			main {
+				padding-top: 112px;
+			}
+
+			.menu {
+				width: 100%;
+				justify-content: space-between;
+				gap: 0;
+			}
+
+			.hero-title {
+				font-size: 36px;
+			}
+
+			.category-nav {
+				gap: 10px;
+			}
+
+			.category-nav a {
+				padding: 10px 14px;
+				font-size: 13px;
+			}
+		}
+	</style>
+</head>
+
+<body>
+	<header>
+		<nav class="nav">
+			<a href="#home" class="logo">HYEMIN PORTFOLIO</a>
+
+			<div class="menu">
+				<a href="#home">Home</a>
+				<a href="#photography">Photography</a>
+				<a href="#videography">Videography</a>
+				<a href="#about">About</a>
+			</div>
+		</nav>
+	</header>
+
+	<main>
+		<section id="home" class="hero">
+			<div class="hero-inner">
+				<h1 class="hero-title">Visual Portfolio</h1>
+				<p class="hero-text">
+					Photography and Videography portfolio focused on performance, exhibition, festival, and event projects.
+				</p>
+
+				<div class="home-block">
+					<h2 class="sub-title">Photography 대표작</h2>
+
+					<div class="slider-wrap">
+						<button class="slider-btn prev" onclick="moveSlider('photoSlider', -1)">‹</button>
+
+						<div id="photoSlider" class="slider">
+							<div class="card">
+								<div class="card-img">
+									<img src="https://picsum.photos/600/750?random=1" alt="Photography 1">
+								</div>
+								<p class="card-title">Performance Project</p>
+							</div>
+
+							<div class="card">
+								<div class="card-img">
+									<img src="https://picsum.photos/600/750?random=2" alt="Photography 2">
+								</div>
+								<p class="card-title">Exhibition Project</p>
+							</div>
+
+							<div class="card">
+								<div class="card-img">
+									<img src="https://picsum.photos/600/750?random=3" alt="Photography 3">
+								</div>
+								<p class="card-title">Festival Project</p>
+							</div>
+
+							<div class="card">
+								<div class="card-img">
+									<img src="https://picsum.photos/600/750?random=4" alt="Photography 4">
+								</div>
+								<p class="card-title">Event Project</p>
+							</div>
+						</div>
+
+						<button class="slider-btn next" onclick="moveSlider('photoSlider', 1)">›</button>
+					</div>
+				</div>
+
+				<div class="home-block">
+					<h2 class="sub-title">Videography 대표작</h2>
+
+					<div class="slider-wrap">
+						<button class="slider-btn prev" onclick="moveSlider('videoSlider', -1)">‹</button>
+
+						<div id="videoSlider" class="slider">
+							<a href="https://www.youtube.com/" target="_blank" class="card">
+								<div class="card-img">
+									<img src="https://picsum.photos/600/750?random=5" alt="Videography 1">
+								</div>
+								<p class="card-title">Concert Film</p>
+							</a>
+
+							<a href="https://www.youtube.com/" target="_blank" class="card">
+								<div class="card-img">
+									<img src="https://picsum.photos/600/750?random=6" alt="Videography 2">
+								</div>
+								<p class="card-title">Brand Film</p>
+							</a>
+
+							<a href="https://www.youtube.com/" target="_blank" class="card">
+								<div class="card-img">
+									<img src="https://picsum.photos/600/750?random=7" alt="Videography 3">
+								</div>
+								<p class="card-title">Event Film</p>
+							</a>
+						</div>
+
+						<button class="slider-btn next" onclick="moveSlider('videoSlider', 1)">›</button>
+					</div>
+				</div>
+			</div>
+		</section>
+
+		<section id="photography" class="section">
+			<h2 class="section-title">Photography</h2>
+
+			<div class="category-nav">
+				<a href="#performance">Performance</a>
+				<a href="#exhibition">Exhibition</a>
+				<a href="#festival">Festival / Event</a>
+			</div>
+
+			<section id="performance" class="photo-section">
+				<div class="photo-head">
+					<h3>Performance</h3>
+					<button class="more-btn" onclick="toggleImages(this, 'performanceGrid')">더보기 +</button>
+				</div>
+
+				<div id="performanceGrid" class="image-grid">
+					<div class="image-item"><img src="https://picsum.photos/500/500?random=11" alt=""></div>
+					<div class="image-item"><img src="https://picsum.photos/500/500?random=12" alt=""></div>
+					<div class="image-item"><img src="https://picsum.photos/500/500?random=13" alt=""></div>
+					<div class="image-item"><img src="https://picsum.photos/500/500?random=14" alt=""></div>
+					<div class="image-item"><img src="https://picsum.photos/500/500?random=15" alt=""></div>
+					<div class="image-item"><img src="https://picsum.photos/500/500?random=16" alt=""></div>
+					<div class="image-item"><img src="https://picsum.photos/500/500?random=17" alt=""></div>
+					<div class="image-item"><img src="https://picsum.photos/500/500?random=18" alt=""></div>
+
+					<div class="image-item hidden"><img src="https://picsum.photos/500/500?random=19" alt=""></div>
+					<div class="image-item hidden"><img src="https://picsum.photos/500/500?random=20" alt=""></div>
+					<div class="image-item hidden"><img src="https://picsum.photos/500/500?random=21" alt=""></div>
+					<div class="image-item hidden"><img src="https://picsum.photos/500/500?random=22" alt=""></div>
+					<div class="image-item hidden"><img src="https://picsum.photos/500/500?random=23" alt=""></div>
+					<div class="image-item hidden"><img src="https://picsum.photos/500/500?random=24" alt=""></div>
+					<div class="image-item hidden"><img src="https://picsum.photos/500/500?random=25" alt=""></div>
+					<div class="image-item hidden"><img src="https://picsum.photos/500/500?random=26" alt=""></div>
+				</div>
+			</section>
+
+			<section id="exhibition" class="photo-section">
+				<div class="photo-head">
+					<h3>Exhibition</h3>
+					<button class="more-btn" onclick="toggleImages(this, 'exhibitionGrid')">더보기 +</button>
+				</div>
+
+				<div id="exhibitionGrid" class="image-grid">
+					<div class="image-item"><img src="https://picsum.photos/500/500?random=31" alt=""></div>
+					<div class="image-item"><img src="https://picsum.photos/500/500?random=32" alt=""></div>
+					<div class="image-item"><img src="https://picsum.photos/500/500?random=33" alt=""></div>
+					<div class="image-item"><img src="https://picsum.photos/500/500?random=34" alt=""></div>
+					<div class="image-item"><img src="https://picsum.photos/500/500?random=35" alt=""></div>
+					<div class="image-item"><img src="https://picsum.photos/500/500?random=36" alt=""></div>
+					<div class="image-item"><img src="https://picsum.photos/500/500?random=37" alt=""></div>
+					<div class="image-item"><img src="https://picsum.photos/500/500?random=38" alt=""></div>
+
+					<div class="image-item hidden"><img src="https://picsum.photos/500/500?random=39" alt=""></div>
+					<div class="image-item hidden"><img src="https://picsum.photos/500/500?random=40" alt=""></div>
+					<div class="image-item hidden"><img src="https://picsum.photos/500/500?random=41" alt=""></div>
+					<div class="image-item hidden"><img src="https://picsum.photos/500/500?random=42" alt=""></div>
+				</div>
+			</section>
+
+			<section id="festival" class="photo-section">
+				<div class="photo-head">
+					<h3>Festival / Event</h3>
+					<button class="more-btn" onclick="toggleImages(this, 'festivalGrid')">더보기 +</button>
+				</div>
+
+				<div id="festivalGrid" class="image-grid">
+					<div class="image-item"><img src="https://picsum.photos/500/500?random=51" alt=""></div>
+					<div class="image-item"><img src="https://picsum.photos/500/500?random=52" alt=""></div>
+					<div class="image-item"><img src="https://picsum.photos/500/500?random=53" alt=""></div>
+					<div class="image-item"><img src="https://picsum.photos/500/500?random=54" alt=""></div>
+					<div class="image-item"><img src="https://picsum.photos/500/500?random=55" alt=""></div>
+					<div class="image-item"><img src="https://picsum.photos/500/500?random=56" alt=""></div>
+					<div class="image-item"><img src="https://picsum.photos/500/500?random=57" alt=""></div>
+					<div class="image-item"><img src="https://picsum.photos/500/500?random=58" alt=""></div>
+
+					<div class="image-item hidden"><img src="https://picsum.photos/500/500?random=59" alt=""></div>
+					<div class="image-item hidden"><img src="https://picsum.photos/500/500?random=60" alt=""></div>
+					<div class="image-item hidden"><img src="https://picsum.photos/500/500?random=61" alt=""></div>
+					<div class="image-item hidden"><img src="https://picsum.photos/500/500?random=62" alt=""></div>
+				</div>
+			</section>
+		</section>
+
+		<section id="videography" class="section">
+			<h2 class="section-title">Videography</h2>
+
+			<div class="video-grid">
+				<a href="https://www.youtube.com/" target="_blank" class="video-card">
+					<div class="video-thumb">
+						<img src="https://picsum.photos/900/506?random=71" alt="Video 1">
+					</div>
+					<h3 class="video-title">Performance Film</h3>
+					<p class="video-desc">공연별 영상 링크 연결</p>
+				</a>
+
+				<a href="https://www.youtube.com/" target="_blank" class="video-card">
+					<div class="video-thumb">
+						<img src="https://picsum.photos/900/506?random=72" alt="Video 2">
+					</div>
+					<h3 class="video-title">Festival Film</h3>
+					<p class="video-desc">행사별 영상 링크 연결</p>
+				</a>
+			</div>
+		</section>
+
+		<section id="about" class="section">
+			<h2 class="section-title">About</h2>
+
+			<p class="about-text">
+				공연, 전시, 축제, 행사 현장을 중심으로 사진과 영상을 기록하는 포트폴리오 페이지입니다.
+				작업 소개, 연락처, 활동 이력 등을 이 영역에 작성하면 됩니다.
+			</p>
+		</section>
+	</main>
+
+	<footer>
+		© 2026 Hyemin Portfolio. All rights reserved.
+	</footer>
+
+	<script>
+		function moveSlider(id, direction) {
+			const slider = document.getElementById(id);
+			const moveWidth = 384;
+
+			slider.scrollLeft += moveWidth * direction;
+		}
+
+		function toggleImages(button, gridId) {
+			const grid = document.getElementById(gridId);
+			const isOpen = button.dataset.open === 'true';
+
+			if (isOpen) {
+				const items = grid.querySelectorAll('.image-item');
+
+				items.forEach((item, index) => {
+					if (index >= 8) {
+						item.classList.add('hidden');
+					}
+				});
+
+				button.textContent = '더보기 +';
+				button.dataset.open = 'false';
+
+				grid.closest('.photo-section').scrollIntoView({
+					behavior: 'smooth',
+					block: 'start'
+				});
+
+				return;
+			}
+
+			const hiddenItems = grid.querySelectorAll('.image-item.hidden');
+
+			hiddenItems.forEach(item => {
+				item.classList.remove('hidden');
+			});
+
+			button.textContent = '접기 -';
+			button.dataset.open = 'true';
+		}
+	</script>
+</body>
+</html>
+'''
+
+path = "/mnt/data/index.html"
+with open(path, "w", encoding="utf-8") as f:
+	f.write(html)
+
+path
