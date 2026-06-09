@@ -1,3 +1,7 @@
+// =========================================================
+// HHM Film 관리자 페이지
+// =========================================================
+
 // 현재 선택된 게시판 코드
 let currentBoardCode = 'FEATURED_IMAGE';
 
@@ -27,7 +31,9 @@ document.addEventListener('DOMContentLoaded', function () {
 	}
 });
 
+// =========================================================
 // 로그인 상태 확인
+// =========================================================
 async function checkLogin() {
 	const { data } = await db.auth.getSession();
 
@@ -35,24 +41,31 @@ async function checkLogin() {
 		showAdmin();
 		await loadBoard();
 		await loadPosts();
+		resetPostForm();
 	} else {
 		showLogin();
 	}
 }
 
+// =========================================================
 // 로그인 화면 표시
+// =========================================================
 function showLogin() {
 	document.querySelector('#loginBox').classList.remove('hide');
 	document.querySelector('#adminBox').classList.add('hide');
 }
 
+// =========================================================
 // 관리자 화면 표시
+// =========================================================
 function showAdmin() {
 	document.querySelector('#loginBox').classList.add('hide');
 	document.querySelector('#adminBox').classList.remove('hide');
 }
 
+// =========================================================
 // 관리자 로그인
+// =========================================================
 async function loginAdmin() {
 	const email = document.querySelector('#loginEmail').value.trim();
 	const password = document.querySelector('#loginPassword').value.trim();
@@ -76,15 +89,20 @@ async function loginAdmin() {
 	showAdmin();
 	await loadBoard();
 	await loadPosts();
+	resetPostForm();
 }
 
+// =========================================================
 // 로그아웃
+// =========================================================
 async function logoutAdmin() {
 	await db.auth.signOut();
 	showLogin();
 }
 
+// =========================================================
 // 게시판 변경
+// =========================================================
 async function changeBoard(boardCode, button) {
 	currentBoardCode = boardCode;
 	currentBoard = null;
@@ -103,7 +121,9 @@ async function changeBoard(boardCode, button) {
 	await loadPosts();
 }
 
+// =========================================================
 // 활성 버튼 표시
+// =========================================================
 function setActiveButton(button) {
 	document.querySelectorAll('.tab-menu button').forEach(function (btn) {
 		btn.classList.remove('active');
@@ -114,7 +134,9 @@ function setActiveButton(button) {
 	}
 }
 
+// =========================================================
 // 작가 정보 화면 표시
+// =========================================================
 async function showProfileForm(button) {
 	setActiveButton(button);
 
@@ -125,7 +147,9 @@ async function showProfileForm(button) {
 	await loadProfile();
 }
 
+// =========================================================
 // 현재 게시판 정보 조회
+// =========================================================
 async function loadBoard() {
 	const { data, error } = await db
 		.from('boards')
@@ -142,7 +166,9 @@ async function loadBoard() {
 	currentBoard = data;
 }
 
+// =========================================================
 // 게시글 목록 조회
+// =========================================================
 async function loadPosts() {
 	if (!currentBoard) {
 		return;
@@ -185,7 +211,9 @@ async function loadPosts() {
 	});
 }
 
+// =========================================================
 // 게시글 저장
+// =========================================================
 async function savePost(event) {
 	event.preventDefault();
 
@@ -201,6 +229,7 @@ async function savePost(event) {
 	const thumbnailUrl = document.querySelector('#thumbnailUrl').value.trim();
 	const sortOrder = Number(document.querySelector('#sortOrder').value || 0);
 	const isVisible = document.querySelector('#isVisible').checked;
+	const categoryCode = document.querySelector('#categoryCode').value;
 
 	if (!title) {
 		alert('제목을 입력해주세요.');
@@ -217,6 +246,7 @@ async function savePost(event) {
 		thumbnail_url: thumbnailUrl,
 		sort_order: sortOrder,
 		is_visible: isVisible,
+		category_code: categoryCode,
 		created_by: sessionData.session ? sessionData.session.user.id : null
 	};
 
@@ -257,7 +287,9 @@ async function savePost(event) {
 	await loadPosts();
 }
 
+// =========================================================
 // 게시글 항목 저장
+// =========================================================
 async function savePostItems(postId) {
 	const itemBoxes = document.querySelectorAll('.post-item-box');
 
@@ -322,7 +354,9 @@ async function savePostItems(postId) {
 	}
 }
 
+// =========================================================
 // 게시글 수정 불러오기
+// =========================================================
 async function editPost(postId) {
 	const { data: post, error: postError } = await db
 		.from('posts')
@@ -339,6 +373,7 @@ async function editPost(postId) {
 	document.querySelector('#postId').value = post.id;
 	document.querySelector('#title').value = post.title || '';
 	document.querySelector('#caption').value = post.caption || '';
+	document.querySelector('#categoryCode').value = post.category_code || 'performance';
 	document.querySelector('#description').value = post.description || '';
 	document.querySelector('#thumbnailUrl').value = post.thumbnail_url || '';
 	document.querySelector('#sortOrder').value = post.sort_order || 0;
@@ -364,13 +399,19 @@ async function editPost(postId) {
 		addPostItem(item);
 	});
 
+	if (!items || items.length === 0) {
+		addPostItem();
+	}
+
 	window.scrollTo({
 		top: 0,
 		behavior: 'smooth'
 	});
 }
 
+// =========================================================
 // 게시글 삭제
+// =========================================================
 async function deletePost(postId) {
 	if (!confirm('게시글을 삭제하시겠습니까?')) {
 		return;
@@ -390,7 +431,9 @@ async function deletePost(postId) {
 	await loadPosts();
 }
 
+// =========================================================
 // 게시글 항목 추가
+// =========================================================
 function addPostItem(item) {
 	const wrap = document.querySelector('#postItemsWrap');
 	const box = document.createElement('div');
@@ -435,26 +478,68 @@ function addPostItem(item) {
 	wrap.appendChild(box);
 }
 
+// =========================================================
 // 게시글 항목 제거
+// =========================================================
 function removePostItem(button) {
 	button.closest('.post-item-box').remove();
 }
 
+// =========================================================
 // 게시글 입력 초기화
+// =========================================================
 function resetPostForm() {
-	document.querySelector('#postId').value = '';
-	document.querySelector('#title').value = '';
-	document.querySelector('#caption').value = '';
-	document.querySelector('#description').value = '';
-	document.querySelector('#thumbnailUrl').value = '';
-	document.querySelector('#sortOrder').value = 0;
-	document.querySelector('#isVisible').checked = true;
-	document.querySelector('#postItemsWrap').innerHTML = '';
+	const postId = document.querySelector('#postId');
+	const title = document.querySelector('#title');
+	const caption = document.querySelector('#caption');
+	const categoryCode = document.querySelector('#categoryCode');
+	const description = document.querySelector('#description');
+	const thumbnailUrl = document.querySelector('#thumbnailUrl');
+	const sortOrder = document.querySelector('#sortOrder');
+	const isVisible = document.querySelector('#isVisible');
+	const postItemsWrap = document.querySelector('#postItemsWrap');
 
-	addPostItem();
+	if (postId) {
+		postId.value = '';
+	}
+
+	if (title) {
+		title.value = '';
+	}
+
+	if (caption) {
+		caption.value = '';
+	}
+
+	if (categoryCode) {
+		categoryCode.value = 'performance';
+	}
+
+	if (description) {
+		description.value = '';
+	}
+
+	if (thumbnailUrl) {
+		thumbnailUrl.value = '';
+	}
+
+	if (sortOrder) {
+		sortOrder.value = 0;
+	}
+
+	if (isVisible) {
+		isVisible.checked = true;
+	}
+
+	if (postItemsWrap) {
+		postItemsWrap.innerHTML = '';
+		addPostItem();
+	}
 }
 
+// =========================================================
 // 작가 정보 조회
+// =========================================================
 async function loadProfile() {
 	const { data, error } = await db
 		.from('site_profiles')
@@ -479,7 +564,9 @@ async function loadProfile() {
 	document.querySelector('#profileImageUrl').value = data.profile_image_url || '';
 }
 
+// =========================================================
 // 작가 정보 저장
+// =========================================================
 async function saveProfile(event) {
 	event.preventDefault();
 
@@ -509,7 +596,9 @@ async function saveProfile(event) {
 	alert('작가 정보가 저장되었습니다.');
 }
 
+// =========================================================
 // 유튜브 ID 추출
+// =========================================================
 function getYoutubeId(url) {
 	if (!url) {
 		return '';
@@ -525,7 +614,9 @@ function getYoutubeId(url) {
 	return '';
 }
 
+// =========================================================
 // HTML 출력 보안 처리
+// =========================================================
 function escapeHtml(value) {
 	return String(value || '')
 		.replaceAll('&', '&amp;')
@@ -535,7 +626,9 @@ function escapeHtml(value) {
 		.replaceAll("'", '&#039;');
 }
 
+// =========================================================
 // input value 보안 처리
+// =========================================================
 function escapeAttr(value) {
 	return escapeHtml(value);
 }
