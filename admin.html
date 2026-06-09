@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>HHM Film 관리자</title>
+
+	<style>
+		* {
+			box-sizing: border-box;
+		}
+
+		body {
+			margin: 0;
+			font-family: Arial, sans-serif;
+			background: #f5f5f5;
+			color: #111;
+		}
+
+		.hide {
+			display: none !important;
+		}
+
+		.admin-wrap {
+			max-width: 1100px;
+			margin: 0 auto;
+			padding: 40px 20px;
+		}
+
+		.admin-box {
+			background: #fff;
+			padding: 24px;
+			border: 1px solid #ddd;
+			margin-bottom: 24px;
+		}
+
+		.admin-box h1,
+		.admin-box h2 {
+			margin-top: 0;
+		}
+
+		.form-row {
+			margin-bottom: 14px;
+		}
+
+		.form-row label {
+			display: block;
+			margin-bottom: 6px;
+			font-weight: bold;
+		}
+
+		input,
+		select,
+		textarea,
+		button {
+			width: 100%;
+			padding: 10px;
+			font-size: 15px;
+		}
+
+		textarea {
+			min-height: 120px;
+			resize: vertical;
+		}
+
+		button {
+			border: 0;
+			background: #111;
+			color: #fff;
+			cursor: pointer;
+		}
+
+		button.sub {
+			background: #777;
+		}
+
+		button.del {
+			background: #b00020;
+		}
+
+		.admin-head {
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+			gap: 12px;
+			margin-bottom: 20px;
+		}
+
+		.admin-head button {
+			width: auto;
+		}
+
+		.tab-menu {
+			display: grid;
+			grid-template-columns: repeat(5, 1fr);
+			gap: 8px;
+			margin-bottom: 20px;
+		}
+
+		.tab-menu button {
+			background: #333;
+		}
+
+		.tab-menu button.active {
+			background: #000;
+		}
+
+		.item-list {
+			display: flex;
+			flex-direction: column;
+			gap: 10px;
+		}
+
+		.list-item {
+			display: grid;
+			grid-template-columns: 1fr 120px 80px 70px 70px;
+			gap: 8px;
+			align-items: center;
+			padding: 12px;
+			border: 1px solid #ddd;
+			background: #fafafa;
+		}
+
+		.list-item button {
+			padding: 8px;
+		}
+
+		.post-item-box {
+			border: 1px solid #ddd;
+			padding: 14px;
+			margin-bottom: 12px;
+			background: #fafafa;
+		}
+
+		@media (max-width: 768px) {
+			.tab-menu,
+			.list-item {
+				grid-template-columns: 1fr;
+			}
+
+			.admin-head {
+				flex-direction: column;
+				align-items: stretch;
+			}
+
+			.admin-head button {
+				width: 100%;
+			}
+		}
+	</style>
+</head>
+<body>
+
+	<main class="admin-wrap">
+
+		<section id="loginBox" class="admin-box">
+			<h1>HHM Film 관리자 로그인</h1>
+
+			<div class="form-row">
+				<label for="loginEmail">이메일</label>
+				<input type="email" id="loginEmail" placeholder="관리자 이메일">
+			</div>
+
+			<div class="form-row">
+				<label for="loginPassword">비밀번호</label>
+				<input type="password" id="loginPassword" placeholder="비밀번호">
+			</div>
+
+			<button type="button" onclick="loginAdmin()">로그인</button>
+		</section>
+
+		<section id="adminBox" class="hide">
+
+			<div class="admin-box">
+				<div class="admin-head">
+					<h1>HHM Film 관리자</h1>
+					<button type="button" onclick="logoutAdmin()">로그아웃</button>
+				</div>
+
+				<div class="tab-menu">
+					<button type="button" class="active" onclick="changeBoard('FEATURED_IMAGE', this)">대표 이미지</button>
+					<button type="button" onclick="changeBoard('FEATURED_VIDEO', this)">대표 동영상</button>
+					<button type="button" onclick="changeBoard('IMAGE_ARCHIVE', this)">이미지 게시판</button>
+					<button type="button" onclick="changeBoard('VIDEO_ARCHIVE', this)">영상 게시판</button>
+					<button type="button" onclick="showProfileForm(this)">작가 정보</button>
+				</div>
+			</div>
+
+			<section id="profileBox" class="admin-box hide">
+				<h2>작가 정보 관리</h2>
+
+				<form id="profileForm">
+					<input type="hidden" id="profileId">
+
+					<div class="form-row">
+						<label for="artistName">작가 이름</label>
+						<input type="text" id="artistName">
+					</div>
+
+					<div class="form-row">
+						<label for="artistTitle">작가 소개 문구</label>
+						<input type="text" id="artistTitle">
+					</div>
+
+					<div class="form-row">
+						<label for="artistMessage">작가의 말</label>
+						<textarea id="artistMessage"></textarea>
+					</div>
+
+					<div class="form-row">
+						<label for="email">메일</label>
+						<input type="email" id="email">
+					</div>
+
+					<div class="form-row">
+						<label for="instagramUrl">인스타그램 주소</label>
+						<input type="text" id="instagramUrl">
+					</div>
+
+					<div class="form-row">
+						<label for="phone">연락처</label>
+						<input type="text" id="phone">
+					</div>
+
+					<div class="form-row">
+						<label for="profileImageUrl">프로필 이미지 URL</label>
+						<input type="text" id="profileImageUrl">
+					</div>
+
+					<button type="submit">작가 정보 저장</button>
+				</form>
+			</section>
+
+			<section id="postBox" class="admin-box">
+				<h2 id="boardTitle">대표 이미지 관리</h2>
+
+				<form id="postForm">
+					<input type="hidden" id="postId">
+
+					<div class="form-row">
+						<label for="title">제목</label>
+						<input type="text" id="title">
+					</div>
+
+					<div class="form-row">
+						<label for="caption">캡션</label>
+						<input type="text" id="caption">
+					</div>
+
+					<div class="form-row">
+						<label for="description">상세설명</label>
+						<textarea id="description"></textarea>
+					</div>
+
+					<div class="form-row">
+						<label for="thumbnailUrl">대표 썸네일 URL</label>
+						<input type="text" id="thumbnailUrl">
+					</div>
+
+					<div class="form-row">
+						<label for="sortOrder">노출 순서</label>
+						<input type="number" id="sortOrder" value="0">
+					</div>
+
+					<div class="form-row">
+						<label>
+							<input type="checkbox" id="isVisible" checked>
+							공개
+						</label>
+					</div>
+
+					<h3>이미지/영상 항목</h3>
+					<div id="postItemsWrap"></div>
+
+					<button type="button" class="sub" onclick="addPostItem()">항목 추가</button>
+					<br><br>
+					<button type="submit">게시글 저장</button>
+					<br><br>
+					<button type="button" class="sub" onclick="resetPostForm()">입력 초기화</button>
+				</form>
+			</section>
+
+			<section id="listBox" class="admin-box">
+				<h2>게시글 목록</h2>
+				<div id="postList" class="item-list"></div>
+			</section>
+
+		</section>
+
+	</main>
+
+	<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+	<script src="./js/supabase.js"></script>
+	<script src="./js/admin.js"></script>
+</body>
+</html>
