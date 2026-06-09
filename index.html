@@ -258,23 +258,6 @@
 			border-bottom: 1px solid var(--line);
 		}
 
-		.featured-head {
-			display: grid;
-			grid-template-columns: minmax(0, 0.8fr) minmax(320px, 0.48fr);
-			gap: 48px;
-			align-items: end;
-			margin-bottom: 48px;
-		}
-
-		.featured-copy {
-			max-width: 520px;
-			color: var(--muted);
-			font-size: 16px;
-			line-height: 1.8;
-			word-break: keep-all;
-		}
-
-		/* Home: 이미지 위 / 비디오 아래 수직 레이아웃 */
 		.featured-grid {
 			display: flex;
 			flex-direction: column;
@@ -292,30 +275,22 @@
 			color: var(--white);
 		}
 
-		/* 각 블록 내부 슬라이더 가로 배치 */
-		.featured-block .slider-wrap {
-			position: relative;
+		.featured-block .slider {
+			gap: 20px;
+			padding: 22px;
 		}
 
-		/* 이미지 블록: 세로 비율 더 짧게 */
-		.featured-block:not(.black) .slide-image {
-			aspect-ratio: 16 / 9;
-		}
-
-		/* 비디오 블록: 16:9 유지 */
-		.featured-block.black .slide-image {
-			aspect-ratio: 16 / 9;
-		}
-
-		/* 두 블록 모두 슬라이드 카드 너비를 더 넓게 */
 		.featured-block .slide-card {
 			flex: 0 0 calc(50% - 10px);
 			min-width: 420px;
 		}
 
-		.featured-block .slider {
-			gap: 20px;
-			padding: 22px;
+		.featured-block:not(.black) .slide-image {
+			aspect-ratio: 16 / 9;
+		}
+
+		.featured-block.black .slide-image {
+			aspect-ratio: 16 / 9;
 		}
 
 		.block-label {
@@ -427,22 +402,21 @@
 			right: 10px;
 		}
 
-		.play-button {
-			position: absolute;
-			left: 50%;
-			top: 50%;
-			z-index: 2;
+		.empty-message {
 			display: flex;
 			align-items: center;
 			justify-content: center;
-			width: 62px;
-			height: 62px;
-			border: 1px solid var(--white);
-			border-radius: 50%;
-			background: rgba(0, 0, 0, 0.68);
-			color: var(--white);
-			font-size: 22px;
-			transform: translate(-50%, -50%);
+			width: 100%;
+			min-height: 220px;
+			padding: 30px;
+			color: var(--muted);
+			text-align: center;
+			font-size: 14px;
+			line-height: 1.6;
+		}
+
+		.featured-block.black .empty-message {
+			color: #b5b5b5;
 		}
 
 		.category-tabs {
@@ -491,16 +465,6 @@
 			font-size: clamp(34px, 4vw, 58px);
 			font-weight: 500;
 			letter-spacing: -0.055em;
-		}
-
-		.photo-head p {
-			margin-top: 8px;
-			color: var(--muted);
-			font-size: 14px;
-		}
-
-		.photo-section.black-row .photo-head p {
-			color: #b5b5b5;
 		}
 
 		.more-btn {
@@ -630,12 +594,6 @@
 			background: #000000;
 		}
 
-		.video-thumb img {
-			opacity: 0.86;
-			transition: 0.25s ease;
-		}
-
-
 		.video-embed {
 			display: block;
 			width: 100%;
@@ -648,11 +606,6 @@
 		.video-thumb .video-embed {
 			position: absolute;
 			inset: 0;
-		}
-
-		.video-card:hover .video-thumb img {
-			opacity: 0.64;
-			transform: scale(1.035);
 		}
 
 		.video-info {
@@ -784,7 +737,6 @@
 		}
 
 		@media (max-width: 1100px) {
-			.featured-head,
 			.about-wrap {
 				grid-template-columns: 1fr;
 			}
@@ -887,22 +839,16 @@
 				min-height: auto;
 			}
 
-			.featured-head {
-				margin-bottom: 34px;
-			}
-
 			.featured-grid {
 				gap: 20px;
 			}
 
-			/* 모바일: 슬라이드 카드 너비 조정 */
 			.featured-block .slide-card,
 			.slide-card {
 				flex-basis: 78%;
 				min-width: 220px;
 			}
 
-			/* 모바일: 이미지/비디오 비율 조정 */
 			.featured-block:not(.black) .slide-image {
 				aspect-ratio: 4 / 3;
 			}
@@ -948,10 +894,6 @@
 				font-size: 16px;
 			}
 
-			.menu {
-				grid-template-columns: 1fr;
-			}
-
 			.section,
 			.section.black > .section-inner {
 				padding: 64px 18px;
@@ -961,15 +903,9 @@
 				font-size: clamp(42px, 16vw, 64px);
 			}
 
-			.featured-copy,
-			.video-intro,
 			.about-text {
 				font-size: 15px;
 				line-height: 1.75;
-			}
-
-			.featured-block {
-				margin: 0 -1px;
 			}
 
 			.block-label {
@@ -1041,7 +977,6 @@
 				</div>
 
 				<a href="#videography" class="menu-link">Videography</a>
-
 				<a href="#about" class="menu-link">About</a>
 			</div>
 		</nav>
@@ -1055,28 +990,18 @@
 						<span>Photography 대표작</span>
 						<span>01</span>
 					</div>
+
 					<div class="slider-wrap">
 						<button class="slider-btn prev" onclick="moveSlider('photoSlider', -1)">‹</button>
+
 						<div id="photoSlider" class="slider" data-auto-slider>
-							<div class="slide-card" onclick="location.href='#performance'">
+							<div class="slide-card">
 								<div class="slide-image">
-									<img src="https://picsum.photos/800/1000?random=1" alt="Performance 대표 이미지">
-									<div class="slide-info"><span>Performance</span><span>Photo</span></div>
-								</div>
-							</div>
-							<div class="slide-card" onclick="location.href='#exhibition'">
-								<div class="slide-image">
-									<img src="https://picsum.photos/800/1000?random=2" alt="Exhibition 대표 이미지">
-									<div class="slide-info"><span>Exhibition</span><span>Photo</span></div>
-								</div>
-							</div>
-							<div class="slide-card" onclick="location.href='#festival'">
-								<div class="slide-image">
-									<img src="https://picsum.photos/800/1000?random=3" alt="Festival 대표 이미지">
-									<div class="slide-info"><span>Festival / Event</span><span>Photo</span></div>
+									<div class="empty-message">대표 이미지를 불러오는 중입니다.</div>
 								</div>
 							</div>
 						</div>
+
 						<button class="slider-btn next" onclick="moveSlider('photoSlider', 1)">›</button>
 					</div>
 				</div>
@@ -1086,25 +1011,18 @@
 						<span>Videography 대표작</span>
 						<span>02</span>
 					</div>
+
 					<div class="slider-wrap">
 						<button class="slider-btn prev" onclick="moveSlider('videoSlider', -1)">‹</button>
+
 						<div id="videoSlider" class="slider" data-auto-slider>
 							<div class="slide-card">
 								<div class="slide-image">
-									<iframe class="video-embed" src="https://www.youtube.com/embed/wWBDJTvXNXw" title="김철진, 신지희의 산조" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
-								</div>
-							</div>
-							<div class="slide-card">
-								<div class="slide-image">
-									<iframe class="video-embed" src="https://www.youtube.com/embed/j0LQ1-_MH3U" title="시인詩,人 산정" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
-								</div>
-							</div>
-							<div class="slide-card">
-								<div class="slide-image">
-									<iframe class="video-embed" src="https://www.youtube.com/embed/2At2KW_mgNQ" title="고영훈의 삶과 예술" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+									<div class="empty-message">대표 동영상을 불러오는 중입니다.</div>
 								</div>
 							</div>
 						</div>
+
 						<button class="slider-btn next" onclick="moveSlider('videoSlider', 1)">›</button>
 					</div>
 				</div>
@@ -1128,23 +1046,9 @@
 					</div>
 					<button class="more-btn" onclick="toggleImages(this, 'performanceGrid')"><span>더보기 +</span></button>
 				</div>
+
 				<div id="performanceGrid" class="image-grid">
-					<div class="image-item" data-title="Performance 01"><img src="https://picsum.photos/700/700?random=11" alt=""></div>
-					<div class="image-item" data-title="Performance 02"><img src="https://picsum.photos/700/700?random=12" alt=""></div>
-					<div class="image-item" data-title="Performance 03"><img src="https://picsum.photos/700/700?random=13" alt=""></div>
-					<div class="image-item" data-title="Performance 04"><img src="https://picsum.photos/700/700?random=14" alt=""></div>
-					<div class="image-item" data-title="Performance 05"><img src="https://picsum.photos/700/700?random=15" alt=""></div>
-					<div class="image-item" data-title="Performance 06"><img src="https://picsum.photos/700/700?random=16" alt=""></div>
-					<div class="image-item" data-title="Performance 07"><img src="https://picsum.photos/700/700?random=17" alt=""></div>
-					<div class="image-item" data-title="Performance 08"><img src="https://picsum.photos/700/700?random=18" alt=""></div>
-					<div class="image-item hidden" data-title="Performance 09"><img src="https://picsum.photos/700/700?random=19" alt=""></div>
-					<div class="image-item hidden" data-title="Performance 10"><img src="https://picsum.photos/700/700?random=20" alt=""></div>
-					<div class="image-item hidden" data-title="Performance 11"><img src="https://picsum.photos/700/700?random=21" alt=""></div>
-					<div class="image-item hidden" data-title="Performance 12"><img src="https://picsum.photos/700/700?random=22" alt=""></div>
-					<div class="image-item hidden" data-title="Performance 13"><img src="https://picsum.photos/700/700?random=23" alt=""></div>
-					<div class="image-item hidden" data-title="Performance 14"><img src="https://picsum.photos/700/700?random=24" alt=""></div>
-					<div class="image-item hidden" data-title="Performance 15"><img src="https://picsum.photos/700/700?random=25" alt=""></div>
-					<div class="image-item hidden" data-title="Performance 16"><img src="https://picsum.photos/700/700?random=26" alt=""></div>
+					<div class="empty-message">Performance 이미지를 불러오는 중입니다.</div>
 				</div>
 			</section>
 
@@ -1155,19 +1059,9 @@
 					</div>
 					<button class="more-btn" onclick="toggleImages(this, 'exhibitionGrid')"><span>더보기 +</span></button>
 				</div>
+
 				<div id="exhibitionGrid" class="image-grid">
-					<div class="image-item" data-title="Exhibition 01"><img src="https://picsum.photos/700/700?random=31" alt=""></div>
-					<div class="image-item" data-title="Exhibition 02"><img src="https://picsum.photos/700/700?random=32" alt=""></div>
-					<div class="image-item" data-title="Exhibition 03"><img src="https://picsum.photos/700/700?random=33" alt=""></div>
-					<div class="image-item" data-title="Exhibition 04"><img src="https://picsum.photos/700/700?random=34" alt=""></div>
-					<div class="image-item" data-title="Exhibition 05"><img src="https://picsum.photos/700/700?random=35" alt=""></div>
-					<div class="image-item" data-title="Exhibition 06"><img src="https://picsum.photos/700/700?random=36" alt=""></div>
-					<div class="image-item" data-title="Exhibition 07"><img src="https://picsum.photos/700/700?random=37" alt=""></div>
-					<div class="image-item" data-title="Exhibition 08"><img src="https://picsum.photos/700/700?random=38" alt=""></div>
-					<div class="image-item hidden" data-title="Exhibition 09"><img src="https://picsum.photos/700/700?random=39" alt=""></div>
-					<div class="image-item hidden" data-title="Exhibition 10"><img src="https://picsum.photos/700/700?random=40" alt=""></div>
-					<div class="image-item hidden" data-title="Exhibition 11"><img src="https://picsum.photos/700/700?random=41" alt=""></div>
-					<div class="image-item hidden" data-title="Exhibition 12"><img src="https://picsum.photos/700/700?random=42" alt=""></div>
+					<div class="empty-message">Exhibition 이미지를 불러오는 중입니다.</div>
 				</div>
 			</section>
 
@@ -1178,19 +1072,9 @@
 					</div>
 					<button class="more-btn" onclick="toggleImages(this, 'festivalGrid')"><span>더보기 +</span></button>
 				</div>
+
 				<div id="festivalGrid" class="image-grid">
-					<div class="image-item" data-title="Festival 01"><img src="https://picsum.photos/700/700?random=51" alt=""></div>
-					<div class="image-item" data-title="Festival 02"><img src="https://picsum.photos/700/700?random=52" alt=""></div>
-					<div class="image-item" data-title="Festival 03"><img src="https://picsum.photos/700/700?random=53" alt=""></div>
-					<div class="image-item" data-title="Festival 04"><img src="https://picsum.photos/700/700?random=54" alt=""></div>
-					<div class="image-item" data-title="Festival 05"><img src="https://picsum.photos/700/700?random=55" alt=""></div>
-					<div class="image-item" data-title="Festival 06"><img src="https://picsum.photos/700/700?random=56" alt=""></div>
-					<div class="image-item" data-title="Festival 07"><img src="https://picsum.photos/700/700?random=57" alt=""></div>
-					<div class="image-item" data-title="Festival 08"><img src="https://picsum.photos/700/700?random=58" alt=""></div>
-					<div class="image-item hidden" data-title="Festival 09"><img src="https://picsum.photos/700/700?random=59" alt=""></div>
-					<div class="image-item hidden" data-title="Festival 10"><img src="https://picsum.photos/700/700?random=60" alt=""></div>
-					<div class="image-item hidden" data-title="Festival 11"><img src="https://picsum.photos/700/700?random=61" alt=""></div>
-					<div class="image-item hidden" data-title="Festival 12"><img src="https://picsum.photos/700/700?random=62" alt=""></div>
+					<div class="empty-message">Festival / Event 이미지를 불러오는 중입니다.</div>
 				</div>
 			</section>
 		</section>
@@ -1199,61 +1083,9 @@
 			<div class="section-inner">
 				<p class="kicker">Videography</p>
 				<h2 class="section-title">Project<br>Films</h2>
-				<section id="video-sanejo" class="video-project">
-					<div class="video-project-head">
-						<h3 class="video-project-title">김철진, 신지희의 산조 &lt;緣(연)&gt;</h3>
-						<span class="video-project-category">Performance</span>
-					</div>
-					<div class="video-grid">
-						<div class="video-card">
-							<div class="video-thumb">
-								<iframe class="video-embed" src="https://www.youtube.com/embed/wWBDJTvXNXw" title="緣(연) 01" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
-							</div>
-							<div class="video-info"><h4 class="video-title">緣(연) 01</h4></div>
-						</div>
-						<div class="video-card">
-							<div class="video-thumb">
-								<iframe class="video-embed" src="https://www.youtube.com/embed/ByIw3WirpG8" title="緣(연) 02" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
-							</div>
-							<div class="video-info"><h4 class="video-title">緣(연) 02</h4></div>
-						</div>
-					</div>
-				</section>
 
-				<section id="video-sanjeong" class="video-project">
-					<div class="video-project-head">
-						<h3 class="video-project-title">5주기 추모전 &lt;시인詩,人 산정&gt;</h3>
-						<span class="video-project-category">Exhibition</span>
-					</div>
-					<div class="video-grid">
-						<div class="video-card">
-							<div class="video-thumb">
-								<iframe class="video-embed" src="https://www.youtube.com/embed/j0LQ1-_MH3U" title="티저" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
-							</div>
-							<div class="video-info"><h4 class="video-title">티저</h4></div>
-						</div>
-						<div class="video-card">
-							<div class="video-thumb">
-								<iframe class="video-embed" src="https://www.youtube.com/embed/Ta_8Xs7yJo8" title="전시소개" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
-							</div>
-							<div class="video-info"><h4 class="video-title">전시소개</h4></div>
-						</div>
-					</div>
-				</section>
-
-				<section id="video-interview" class="video-project">
-					<div class="video-project-head">
-						<h3 class="video-project-title">&lt;고영훈의 삶과 예술&gt; 작가 인터뷰</h3>
-						<span class="video-project-category">Interview</span>
-					</div>
-					<div class="video-grid">
-						<div class="video-card">
-							<div class="video-thumb">
-								<iframe class="video-embed" src="https://www.youtube.com/embed/2At2KW_mgNQ" title="고영훈 작가 인터뷰" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
-							</div>
-							<div class="video-info"><h4 class="video-title">고영훈 작가 인터뷰</h4></div>
-						</div>
-					</div>
+				<section class="video-project" id="videoLoading">
+					<p class="video-intro">영상 데이터를 불러오는 중입니다.</p>
 				</section>
 			</div>
 		</section>
@@ -1265,15 +1097,26 @@
 			<div class="about-wrap">
 				<div class="about-text">
 					<h3>작가의 말</h3>
-					<p>공연의 움직임, 전시 공간의 분위기, 축제와 행사 현장의 흐름을 사진과 영상으로 기록합니다.</p>
-					<p>현장에서 마주한 빛, 사람, 순간의 감각이 오래 남을 수 있도록 차분하고 선명한 시선으로 작업합니다.</p>
+					<p>작가 정보를 불러오는 중입니다.</p>
 				</div>
 
 				<div class="about-info">
-					<div class="info-row"><strong>Name</strong><span>황혜민</span></div>
-					<div class="info-row"><strong>Email</strong><span>xo7652@naver.com</span></div>
-					<div class="info-row"><strong>Instagram</strong><span><a href="https://www.instagram.com/h.wang_h" target="_blank" rel="noopener noreferrer">@h.wang_h</a></span></div>
-					<div class="info-row"><strong>Category</strong><span>Photo / Video</span></div>
+					<div class="info-row">
+						<strong>Name</strong>
+						<span></span>
+					</div>
+					<div class="info-row">
+						<strong>Email</strong>
+						<span></span>
+					</div>
+					<div class="info-row">
+						<strong>Instagram</strong>
+						<span></span>
+					</div>
+					<div class="info-row">
+						<strong>Category</strong>
+						<span></span>
+					</div>
 				</div>
 			</div>
 		</section>
@@ -1288,9 +1131,18 @@
 		<img id="lightboxImage" src="" alt="Preview">
 	</div>
 
+	<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+	<script src="./js/supabase.js"></script>
+	<script src="./js/main.js"></script>
+
 	<script>
 		function moveSlider(id, direction) {
 			const slider = document.getElementById(id);
+
+			if (!slider) {
+				return;
+			}
+
 			const card = slider.querySelector('.slide-card');
 
 			if (!card) {
@@ -1386,6 +1238,11 @@
 
 		function toggleImages(button, gridId) {
 			const grid = document.getElementById(gridId);
+
+			if (!grid) {
+				return;
+			}
+
 			const isOpen = button.dataset.open === 'true';
 			const items = grid.querySelectorAll('.image-item');
 			const text = button.querySelector('span');
@@ -1435,12 +1292,6 @@
 			});
 		});
 
-		document.querySelectorAll('.image-item img').forEach((image) => {
-			image.addEventListener('click', () => {
-				openLightbox(image.src);
-			});
-		});
-
 		document.addEventListener('keydown', (event) => {
 			if (event.key === 'Escape') {
 				closeMobileMenu();
@@ -1451,9 +1302,5 @@
 
 		startAutoSliders();
 	</script>
-	<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-	<script src="./js/supabase.js"></script>
-	<script src="./js/main.js"></script>
-
 </body>
 </html>
