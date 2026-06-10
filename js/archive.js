@@ -191,6 +191,7 @@ function getImageCategoryHtml(category, posts) {
 			<div class="category-head">
 				<h2 class="category-title">${escapeHtml(category.name)}</h2>
 			</div>
+
 			<div class="photo-project-list">
 				${posts.map(getImageProjectHtml).join('')}
 			</div>
@@ -203,7 +204,9 @@ function getImageProjectHtml(post) {
 		return item.item_type !== 'video' && item.image_url;
 	});
 
-	const thumbnailItems = imageItems.length > 0 ? imageItems : getFallbackImageItems(post);
+	let thumbnailItems = imageItems.length > 0 ? imageItems : getFallbackImageItems(post);
+
+	thumbnailItems = getLimitedImageItems(thumbnailItems);
 
 	if (thumbnailItems.length === 0) {
 		return '';
@@ -215,6 +218,7 @@ function getImageProjectHtml(post) {
 				<h3 class="photo-project-title">${escapeHtml(post.title || '')}</h3>
 				${post.caption ? `<p class="photo-project-caption">${escapeHtml(post.caption)}</p>` : ''}
 			</a>
+
 			<div class="photo-strip">
 				${thumbnailItems.map(function(item) {
 					return `
@@ -228,12 +232,33 @@ function getImageProjectHtml(post) {
 	`;
 }
 
+function getLimitedImageItems(items) {
+	const count = items.length;
+
+	if (count >= 12) {
+		return items.slice(0, 12);
+	}
+
+	if (count >= 8) {
+		return items.slice(0, 8);
+	}
+
+	if (count >= 4) {
+		return items.slice(0, 4);
+	}
+
+	return items;
+}
+
 function getFallbackImageItems(post) {
 	if (!post.thumbnail_url) {
 		return [];
 	}
 
-	return [{ image_url: post.thumbnail_url, caption: post.title || '' }];
+	return [{
+		image_url: post.thumbnail_url,
+		caption: post.title || ''
+	}];
 }
 
 function renderVideoList(target, posts) {
@@ -265,10 +290,12 @@ function getVideoProjectHtml(post) {
 				<h2 class="video-project-title">${escapeHtml(post.title || '')}</h2>
 				${post.caption ? `<p class="video-project-caption">${escapeHtml(post.caption)}</p>` : ''}
 			</div>
+
 			<div class="video-strip">
 				${videoItems.map(function(item, index) {
 					const youtubeId = item.youtube_id || extractYoutubeId(item.video_url);
 					const title = item.caption || post.title || 'YouTube video';
+
 					return `
 						<button type="button" class="video-thumb-button" data-youtube-id="${escapeAttr(youtubeId)}" data-video-title="${escapeAttr(title)}">
 							<span class="video-thumb-image">
@@ -306,6 +333,7 @@ function initVideoModal() {
 	document.body.insertAdjacentHTML('beforeend', `
 		<div class="video-modal" id="videoModal" aria-hidden="true">
 			<div class="video-modal-bg" data-video-modal-close></div>
+
 			<div class="video-modal-panel" role="dialog" aria-modal="true" aria-label="영상 재생">
 				<button type="button" class="video-modal-close" data-video-modal-close aria-label="영상 닫기">×</button>
 				<div class="video-modal-frame" id="videoModalFrame"></div>
