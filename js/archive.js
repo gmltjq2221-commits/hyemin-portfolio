@@ -4,44 +4,62 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 function initCommonUi() {
-	const menuBtn = document.getElementById('menuBtn');
-	const nav = document.getElementById('nav');
 	const year = document.getElementById('year');
-
-	if (menuBtn && nav) {
-		menuBtn.addEventListener('click', function() {
-			nav.classList.toggle('active');
-		});
-
-		nav.querySelectorAll('a').forEach(function(link) {
-			link.addEventListener('click', function() {
-				nav.classList.remove('active');
-			});
-		});
-	}
 
 	if (year) {
 		year.textContent = new Date().getFullYear();
 	}
+
+	document.addEventListener('click', function(event) {
+		if (!event.target.closest('header')) {
+			closeMobileMenu();
+		}
+	});
+
+	document.querySelectorAll('#siteMenu a').forEach(function(link) {
+		link.addEventListener('click', function() {
+			closeMobileMenu();
+		});
+	});
+
+	document.addEventListener('keydown', function(event) {
+		if (event.key === 'Escape') {
+			closeMobileMenu();
+		}
+	});
+}
+
+function toggleMobileMenu(event) {
+	event.stopPropagation();
+
+	const menu = document.getElementById('siteMenu');
+	const button = document.querySelector('.mobile-menu-btn');
+	const isOpen = menu.classList.toggle('open');
+
+	button.classList.toggle('open', isOpen);
+	button.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+	button.setAttribute('aria-label', isOpen ? '메뉴 닫기' : '메뉴 열기');
+}
+
+function closeMobileMenu() {
+	const menu = document.getElementById('siteMenu');
+	const button = document.querySelector('.mobile-menu-btn');
+
+	if (!menu || !button) {
+		return;
+	}
+
+	menu.classList.remove('open');
+	button.classList.remove('open');
+	button.setAttribute('aria-expanded', 'false');
+	button.setAttribute('aria-label', '메뉴 열기');
 }
 
 async function loadArchiveData() {
-	const body = document.body;
-	const boardCode = body.dataset.boardCode;
-	const pageTitle = body.dataset.pageTitle || '';
-	const pageDesc = body.dataset.pageDesc || '';
-	const archiveTitle = document.getElementById('archiveTitle');
-	const archiveDesc = document.getElementById('archiveDesc');
+	const boardCode = document.body.dataset.boardCode;
+	const pageKind = document.body.dataset.pageKind;
 	const archiveList = document.getElementById('archiveList');
 	const loading = document.getElementById('loading');
-
-	if (archiveTitle) {
-		archiveTitle.textContent = pageTitle;
-	}
-
-	if (archiveDesc) {
-		archiveDesc.textContent = pageDesc;
-	}
 
 	if (!boardCode || !archiveList) {
 		hideLoading(loading);
@@ -52,15 +70,15 @@ async function loadArchiveData() {
 		const board = await getBoardByCode(boardCode);
 
 		if (!board) {
-			renderEmpty(archiveList, '게시판 정보를 찾을 수 없습니다.');
+			archiveList.innerHTML = '';
 			return;
 		}
 
 		const posts = await getPostsByBoardId(board.id);
-		renderArchiveList(archiveList, posts, boardCode);
+		renderArchiveList(archiveList, posts, pageKind);
 	} catch (error) {
 		console.error('목록 데이터 로딩 오류:', error);
-		renderEmpty(archiveList, '데이터를 불러오는 중 오류가 발생했습니다.');
+		archiveList.innerHTML = '';
 	} finally {
 		hideLoading(loading);
 	}
@@ -131,32 +149,42 @@ async function getPostsByBoardId(boardId) {
 	});
 }
 
-function renderArchiveList(target, posts, boardCode) {
+function renderArchiveList(target, posts, pageKind) {
 	target.innerHTML = '';
 
 	if (!posts || posts.length === 0) {
-		renderEmpty(target, '등록된 게시글이 없습니다.');
 		return;
 	}
 
-	const isVideo = boardCode === 'VIDEO_ARCHIVE';
+	const isVideo = pageKind === 'video';
 
 	posts.forEach(function(post) {
 		const firstItem = post.post_items && post.post_items.length > 0 ? post.post_items[0] : null;
 		const thumbnailUrl = getPostThumbnail(post, firstItem, isVideo);
-		const categoryName = getCategoryName(post.category_code);
+
+		if (!thumbnailUrl) {
+			return;
+		}
+
+		if (isVideo) {
+			target.insertAdjacentHTML('beforeend', `
+				<a href="detail.html?id=${post.id}" class="video-card">
+					<div class="video-thumb">
+						<img src="${escapeAttr(thumbnailUrl)}" alt="${escapeAttr(post.title || '')}">
+						<div class="play-button">▶</div>
+					</div>
+					<div class="video-info">
+						<h2 class="video-title">${escapeHtml(post.title || '')}</h2>
+						${post.caption ? `<p class="video-desc">${escapeHtml(post.caption)}</p>` : ''}
+					</div>
+				</a>
+			`);
+			return;
+		}
 
 		target.insertAdjacentHTML('beforeend', `
-			<a href="detail.html?id=${post.id}" class="archive-card">
-				<div class="archive-thumb-wrap">
-					${thumbnailUrl ? `<img src="${escapeAttr(thumbnailUrl)}" alt="${escapeAttr(post.title || '')}" class="archive-thumb" />` : `<div class="empty-box">썸네일이 없습니다.</div>`}
-					${isVideo ? `<span class="play-icon" aria-hidden="true"></span>` : ''}
-				</div>
-				<div class="archive-info">
-					${categoryName ? `<span class="archive-category">${escapeHtml(categoryName)}</span>` : ''}
-					<h2 class="archive-card-title">${escapeHtml(post.title || '')}</h2>
-					${post.caption ? `<p class="archive-caption">${escapeHtml(post.caption)}</p>` : ''}
-				</div>
+			<a href="detail.html?id=${post.id}" class="image-item" data-title="${escapeAttr(post.title || '')}">
+				<img src="${escapeAttr(thumbnailUrl)}" alt="${escapeAttr(post.title || '')}">
 			</a>
 		`);
 	});
@@ -211,25 +239,6 @@ function extractYoutubeId(url) {
 	}
 
 	return '';
-}
-
-function getCategoryName(categoryCode) {
-	const categories = {
-		'performance': 'Performance',
-		'exhibition': 'Exhibition',
-		'festival-event': 'Festival / Event',
-		'interview': 'Interview'
-	};
-
-	return categories[categoryCode] || '';
-}
-
-function renderEmpty(target, message) {
-	target.innerHTML = `
-		<div class="empty-box">
-			${escapeHtml(message)}
-		</div>
-	`;
 }
 
 function hideLoading(loading) {
