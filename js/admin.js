@@ -17,6 +17,7 @@ function bindEvents() {
 	const profileForm = document.getElementById('profileForm');
 	const resetPostBtn = document.getElementById('resetPostBtn');
 	const filterBoardCode = document.getElementById('filterBoardCode');
+	const boardCode = document.getElementById('boardCode');
 
 	if (loginForm) { loginForm.addEventListener('submit', handleLogin); }
 	if (logoutBtn) { logoutBtn.addEventListener('click', handleLogout); }
@@ -24,6 +25,7 @@ function bindEvents() {
 	if (profileForm) { profileForm.addEventListener('submit', handleSaveProfile); }
 	if (resetPostBtn) { resetPostBtn.addEventListener('click', resetPostForm); }
 	if (filterBoardCode) { filterBoardCode.addEventListener('change', loadPosts); }
+	if (boardCode) { boardCode.addEventListener('change', updatePostFormGuide); updatePostFormGuide(); }
 }
 
 async function checkSession() {
@@ -130,6 +132,7 @@ async function loadBoards() {
 async function loadPosts() {
 	const postList = document.getElementById('postList');
 	const filterBoardCode = document.getElementById('filterBoardCode');
+	const boardCode = document.getElementById('boardCode');
 	const selectedBoardCode = filterBoardCode ? filterBoardCode.value : '';
 
 	if (!postList) { return; }
@@ -246,6 +249,7 @@ async function loadPostForEdit(postId) {
 
 	setValue('postId', data.id);
 	setValue('boardCode', data.boards ? data.boards.board_code : '');
+	updatePostFormGuide();
 	setValue('categoryCode', data.category_code || 'performance');
 	setValue('postTitle', data.title || '');
 	setValue('postCaption', data.caption || '');
@@ -272,12 +276,14 @@ async function handleSavePost(event) {
 		return;
 	}
 
+	const isFeaturedVideo = boardCode === 'FEATURED_VIDEO';
+
 	const payload = {
 		board_id: board.id,
 		title: getValue('postTitle'),
 		caption: getValue('postCaption') || null,
 		description: getValue('postDescription') || null,
-		thumbnail_url: getValue('thumbnailUrl') || null,
+		thumbnail_url: isFeaturedVideo ? null : (getValue('thumbnailUrl') || null),
 		sort_order: Number(getValue('sortOrder') || 0),
 		is_visible: getValue('isVisible') === 'true',
 		category_code: getValue('categoryCode'),
@@ -393,6 +399,7 @@ function resetPostForm() {
 	setValue('categoryCode', 'performance');
 	setValue('sortOrder', 0);
 	setValue('isVisible', 'true');
+	updatePostFormGuide();
 }
 
 async function loadProfile() {
@@ -464,6 +471,57 @@ async function handleSaveProfile(event) {
 
 	setValue('profileId', data.id);
 	showMessage('adminMessage', '작가 정보가 저장되었습니다.');
+}
+
+
+function updatePostFormGuide() {
+	const boardCode = document.getElementById('boardCode');
+	const thumbnailRow = document.getElementById('thumbnailRow');
+	const thumbnailUrl = document.getElementById('thumbnailUrl');
+	const thumbnailHelp = document.getElementById('thumbnailHelp');
+	const boardHelp = document.getElementById('boardHelp');
+	const itemUrlsLabel = document.getElementById('itemUrlsLabel');
+	const itemUrlsHelp = document.getElementById('itemUrlsHelp');
+
+	if (!boardCode) {
+		return;
+	}
+
+	const value = boardCode.value;
+	const isFeaturedImage = value === 'FEATURED_IMAGE';
+	const isFeaturedVideo = value === 'FEATURED_VIDEO';
+	const isImageArchive = value === 'IMAGE_ARCHIVE';
+	const isVideoArchive = value === 'VIDEO_ARCHIVE';
+	const isVideo = isFeaturedVideo || isVideoArchive;
+
+	if (boardHelp) {
+		if (isFeaturedImage) { boardHelp.textContent = '메인 화면의 Photography 대표작 영역에 노출됩니다.'; }
+		if (isFeaturedVideo) { boardHelp.textContent = '메인 화면의 Videography 대표작 영역에 노출됩니다. 썸네일 없이 영상이 바로 표시됩니다.'; }
+		if (isImageArchive) { boardHelp.textContent = 'Photography 메뉴의 목록 페이지에 노출됩니다.'; }
+		if (isVideoArchive) { boardHelp.textContent = 'Videography 메뉴의 목록 페이지에 노출됩니다.'; }
+	}
+
+	if (thumbnailRow) {
+		if (isFeaturedVideo) {
+			thumbnailRow.style.display = 'none';
+			if (thumbnailUrl) { thumbnailUrl.value = ''; }
+		} else {
+			thumbnailRow.style.display = 'block';
+		}
+	}
+
+	if (thumbnailHelp) {
+		if (isFeaturedImage || isImageArchive) { thumbnailHelp.textContent = '비워두면 첫 번째 이미지 URL을 사용합니다.'; }
+		if (isVideoArchive) { thumbnailHelp.textContent = 'Videography 목록용 썸네일입니다. 비워두면 영상이 바로 표시됩니다.'; }
+	}
+
+	if (itemUrlsLabel) {
+		itemUrlsLabel.textContent = isVideo ? '유튜브 URL' : '이미지 URL';
+	}
+
+	if (itemUrlsHelp) {
+		itemUrlsHelp.textContent = isVideo ? '유튜브 링크를 한 줄에 하나씩 입력하세요.' : '이미지 URL을 한 줄에 하나씩 입력하세요.';
+	}
 }
 
 function getTextareaLines(id) {
