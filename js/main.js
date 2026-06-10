@@ -66,36 +66,31 @@ async function loadFeaturedPosts(boardCode, sliderId, isVideo) {
 	const board = await getBoardByCode(boardCode);
 
 	if (!board) {
-		slider.innerHTML = '';
+		renderEmptySlider(slider);
 		return;
 	}
 
 	const posts = await getPostsByBoardId(board.id);
 
 	if (!posts || posts.length === 0) {
-		slider.innerHTML = '';
+		renderEmptySlider(slider);
 		return;
 	}
 
+	slider.classList.remove('is-empty');
 	slider.innerHTML = '';
 
 	posts.forEach(function(post) {
-		if (isVideo) {
-			const videoHtml = renderVideoSlide(post);
+		const html = isVideo ? renderVideoSlide(post) : renderImageSlide(post);
 
-			if (videoHtml) {
-				slider.insertAdjacentHTML('beforeend', videoHtml);
-			}
-
-			return;
-		}
-
-		const imageHtml = renderImageSlide(post);
-
-		if (imageHtml) {
-			slider.insertAdjacentHTML('beforeend', imageHtml);
+		if (html) {
+			slider.insertAdjacentHTML('beforeend', html);
 		}
 	});
+
+	if (!slider.querySelector('.slide-card')) {
+		renderEmptySlider(slider);
+	}
 }
 
 function renderImageSlide(post) {
@@ -130,17 +125,8 @@ function renderVideoSlide(post) {
 	return `
 		<div class="slide-card video-click-card" onclick="location.href='detail.html?id=${post.id}'">
 			<div class="slide-image">
-				<iframe
-					class="video-embed"
-					src="https://www.youtube.com/embed/${escapeAttr(youtubeId)}"
-					title="${escapeAttr(post.title || 'YouTube video')}"
-					allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-					referrerpolicy="strict-origin-when-cross-origin"
-					allowfullscreen>
-				</iframe>
-
+				<iframe class="video-embed" src="https://www.youtube.com/embed/${escapeAttr(youtubeId)}" title="${escapeAttr(post.title || 'YouTube video')}" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
 				<div class="video-click-cover"></div>
-
 				<div class="slide-info">
 					<span>${escapeHtml(post.title || '')}</span>
 					<span>Video</span>
@@ -216,7 +202,7 @@ async function getPostsByBoardId(boardId) {
 }
 
 function getPostThumbnail(post, firstItem, isVideo) {
-	if (post.thumbnail_url) {
+	if (post.thumbnail_url && !isVideo) {
 		return post.thumbnail_url;
 	}
 
@@ -226,18 +212,6 @@ function getPostThumbnail(post, firstItem, isVideo) {
 
 	if (!isVideo && firstItem.image_url) {
 		return firstItem.image_url;
-	}
-
-	if (isVideo && firstItem.youtube_id) {
-		return `https://img.youtube.com/vi/${firstItem.youtube_id}/maxresdefault.jpg`;
-	}
-
-	if (isVideo && firstItem.video_url) {
-		const youtubeId = extractYoutubeId(firstItem.video_url);
-
-		if (youtubeId) {
-			return `https://img.youtube.com/vi/${youtubeId}/maxresdefault.jpg`;
-		}
 	}
 
 	return '';
@@ -264,6 +238,11 @@ function extractYoutubeId(url) {
 	}
 
 	return '';
+}
+
+function renderEmptySlider(slider) {
+	slider.classList.add('is-empty');
+	slider.innerHTML = '';
 }
 
 function setText(id, value) {
