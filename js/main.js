@@ -1,336 +1,164 @@
-// =========================================================
-// HHM Film 메인 페이지 DB 연동
-// =========================================================
-
-document.addEventListener('DOMContentLoaded', function () {
+document.addEventListener('DOMContentLoaded', function() {
 	loadMainData();
 });
 
-// =========================================================
-// 전체 데이터 로딩
-// =========================================================
 async function loadMainData() {
-	await loadProfile();
-	await loadFeaturedImages();
-	await loadFeaturedVideos();
-	await loadImageArchive();
-	await loadVideoArchive();
+	const loading = document.getElementById('loading');
 
-	resetImageClickEvents();
+	try {
+		await Promise.all([
+			loadSiteProfile(),
+			loadFeaturedImage(),
+			loadFeaturedVideo()
+		]);
+	} catch (error) {
+		console.error('메인 데이터 로딩 오류:', error);
+	} finally {
+		if (loading) {
+			loading.classList.add('hide');
+		}
+	}
 }
 
-// =========================================================
-// 작가 정보 조회
-// =========================================================
-async function loadProfile() {
+async function loadSiteProfile() {
 	const { data, error } = await db
 		.from('site_profiles')
 		.select('*')
-		.order('id', { ascending: true })
+		.order('created_at', { ascending: false })
 		.limit(1)
-		.single();
+		.maybeSingle();
 
 	if (error) {
-		console.error('작가 정보 조회 실패:', error);
+		console.error('작가 정보 조회 오류:', error);
 		return;
 	}
 
-	const aboutTitle = document.querySelector('#about .section-title');
-	const aboutText = document.querySelector('#about .about-text');
-	const aboutInfo = document.querySelector('#about .about-info');
-
-	if (aboutTitle && data.artist_name) {
-		aboutTitle.innerHTML = escapeHtml(data.artist_name).replaceAll(' ', '<br>');
-	}
-
-	if (aboutText) {
-		aboutText.innerHTML = `
-			<h3>작가의 말</h3>
-			<p>${nl2br(escapeHtml(data.artist_message || ''))}</p>
-		`;
-	}
-
-	if (aboutInfo) {
-		const instagramText = getInstagramText(data.instagram_url);
-
-		aboutInfo.innerHTML = `
-			<div class="info-row">
-				<strong>Name</strong>
-				<span>${escapeHtml(data.artist_name || '')}</span>
-			</div>
-			<div class="info-row">
-				<strong>Email</strong>
-				<span>${data.email ? `<a href="mailto:${escapeAttr(data.email)}">${escapeHtml(data.email)}</a>` : ''}</span>
-			</div>
-			<div class="info-row">
-				<strong>Instagram</strong>
-				<span>${data.instagram_url ? `<a href="${escapeAttr(data.instagram_url)}" target="_blank" rel="noopener noreferrer">${escapeHtml(instagramText)}</a>` : ''}</span>
-			</div>
-			<div class="info-row">
-				<strong>Category</strong>
-				<span>Photo / Video</span>
-			</div>
-		`;
-	}
-}
-
-// =========================================================
-// 대표 이미지 게시판 조회
-// =========================================================
-async function loadFeaturedImages() {
-	const posts = await getPostsByBoardCode('FEATURED_IMAGE');
-	const slider = document.querySelector('#photoSlider');
-
-	if (!slider) {
+	if (!data) {
 		return;
 	}
 
-	slider.innerHTML = '';
+	const heroText = document.getElementById('heroText');
+	const artistName = document.getElementById('artistName');
+	const artistTitle = document.getElementById('artistTitle');
+	const artistMessage = document.getElementById('artistMessage');
+	const profileImage = document.getElementById('profileImage');
+	const profileEmpty = document.getElementById('profileEmpty');
+	const aboutContact = document.getElementById('aboutContact');
+	const footerArtist = document.getElementById('footerArtist');
 
-	if (!posts || posts.length === 0) {
-		slider.innerHTML = getEmptySlide('등록된 대표 이미지가 없습니다.');
-		return;
+	if (heroText) {
+		heroText.textContent = data.artist_title || '';
 	}
 
-	posts.forEach(function (post) {
-		const imageUrl = post.thumbnail_url || getFirstImageUrl(post.post_items);
-		const categoryText = getCategoryName(post.category_code);
+	if (artistName) {
+		artistName.textContent = data.artist_name || '';
+	}
 
-		if (!imageUrl) {
-			return;
+	if (artistTitle) {
+		artistTitle.textContent = data.artist_title || '';
+	}
+
+	if (artistMessage) {
+		artistMessage.textContent = data.artist_message || '';
+	}
+
+	if (footerArtist) {
+		footerArtist.textContent = data.artist_name || '';
+	}
+
+	if (profileImage && data.profile_image_url) {
+		profileImage.src = data.profile_image_url;
+		profileImage.alt = data.artist_name || '프로필 이미지';
+		profileImage.style.display = 'block';
+
+		if (profileEmpty) {
+			profileEmpty.style.display = 'none';
+		}
+	}
+
+	if (aboutContact) {
+		aboutContact.innerHTML = '';
+
+		if (data.email) {
+			aboutContact.insertAdjacentHTML('beforeend', `
+				<a href="mailto:${escapeAttr(data.email)}">${escapeHtml(data.email)}</a>
+			`);
 		}
 
-		const card = document.createElement('div');
-		card.className = 'slide-card';
-		card.onclick = function () {
-			if (post.category_code === 'exhibition') {
-				location.href = '#exhibition';
-				return;
-			}
-
-			if (post.category_code === 'festival-event') {
-				location.href = '#festival';
-				return;
-			}
-
-			location.href = '#performance';
-		};
-
-		card.innerHTML = `
-			<div class="slide-image">
-				<img src="${escapeAttr(imageUrl)}" alt="${escapeAttr(post.title)}">
-				<div class="slide-info">
-					<span>${escapeHtml(post.caption || categoryText || post.title)}</span>
-					<span>Photo</span>
-				</div>
-			</div>
-		`;
-
-		slider.appendChild(card);
-	});
-}
-
-// =========================================================
-// 대표 동영상 게시판 조회
-// =========================================================
-async function loadFeaturedVideos() {
-	const posts = await getPostsByBoardCode('FEATURED_VIDEO');
-	const slider = document.querySelector('#videoSlider');
-
-	if (!slider) {
-		return;
-	}
-
-	slider.innerHTML = '';
-
-	if (!posts || posts.length === 0) {
-		slider.innerHTML = getEmptySlide('등록된 대표 동영상이 없습니다.');
-		return;
-	}
-
-	posts.forEach(function (post) {
-		const firstVideo = getFirstVideoItem(post.post_items);
-		const youtubeId = firstVideo?.youtube_id || getYoutubeId(firstVideo?.video_url || post.youtube_url || '');
-
-		if (!youtubeId) {
-			return;
+		if (data.instagram_url) {
+			aboutContact.insertAdjacentHTML('beforeend', `
+				<a href="${escapeAttr(data.instagram_url)}" target="_blank" rel="noopener noreferrer">Instagram</a>
+			`);
 		}
 
-		const card = document.createElement('div');
-		card.className = 'slide-card';
-
-		card.innerHTML = `
-			<div class="slide-image">
-				<iframe
-					class="video-embed"
-					src="https://www.youtube.com/embed/${escapeAttr(youtubeId)}"
-					title="${escapeAttr(post.title)}"
-					allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-					referrerpolicy="strict-origin-when-cross-origin"
-					allowfullscreen>
-				</iframe>
-			</div>
-		`;
-
-		slider.appendChild(card);
-	});
-}
-
-// =========================================================
-// 이미지 저장 게시판 조회
-// =========================================================
-async function loadImageArchive() {
-	const posts = await getPostsByBoardCode('IMAGE_ARCHIVE');
-
-	const categoryMap = {
-		'performance': document.querySelector('#performanceGrid'),
-		'exhibition': document.querySelector('#exhibitionGrid'),
-		'festival-event': document.querySelector('#festivalGrid')
-	};
-
-	Object.values(categoryMap).forEach(function (grid) {
-		if (grid) {
-			grid.innerHTML = '';
+		if (data.phone) {
+			aboutContact.insertAdjacentHTML('beforeend', `
+				<span>${escapeHtml(data.phone)}</span>
+			`);
 		}
-	});
+	}
+}
 
-	if (!posts || posts.length === 0) {
-		Object.values(categoryMap).forEach(function (grid) {
-			if (grid) {
-				grid.innerHTML = '<p>등록된 이미지가 없습니다.</p>';
-			}
-		});
+async function loadFeaturedImage() {
+	const post = await getLatestVisiblePostByBoardCode('FEATURED_IMAGE');
+
+	if (!post) {
 		return;
 	}
 
-	posts.forEach(function (post) {
-		const categoryCode = post.category_code || 'performance';
-		const grid = categoryMap[categoryCode];
-
-		if (!grid) {
-			return;
-		}
-
-		const items = post.post_items || [];
-
-		items.forEach(function (item, index) {
-			if (!item.image_url) {
-				return;
-			}
-
-			const div = document.createElement('div');
-			div.className = 'image-item';
-
-			if (grid.children.length >= 8) {
-				div.classList.add('hidden');
-			}
-
-			div.dataset.title = item.caption || post.caption || post.title || '';
-
-			div.innerHTML = `
-				<img src="${escapeAttr(item.image_url)}" alt="${escapeAttr(item.caption || post.title || '')}">
-			`;
-
-			grid.appendChild(div);
-		});
+	renderFeaturedCard({
+		cardId: 'featuredImageCard',
+		post: post,
+		typeLabel: 'Image',
+		isVideo: false
 	});
 }
 
-// =========================================================
-// 영상 저장 게시판 조회
-// =========================================================
-async function loadVideoArchive() {
-	const posts = await getPostsByBoardCode('VIDEO_ARCHIVE');
-	const wrap = document.querySelector('#videography .section-inner');
+async function loadFeaturedVideo() {
+	const post = await getLatestVisiblePostByBoardCode('FEATURED_VIDEO');
 
-	if (!wrap) {
+	if (!post) {
 		return;
 	}
 
-	const oldProjects = wrap.querySelectorAll('.video-project');
-	oldProjects.forEach(function (project) {
-		project.remove();
-	});
-
-	if (!posts || posts.length === 0) {
-		const empty = document.createElement('section');
-		empty.className = 'video-project';
-		empty.innerHTML = '<p class="video-intro">등록된 영상이 없습니다.</p>';
-		wrap.appendChild(empty);
-		return;
-	}
-
-	posts.forEach(function (post) {
-		const section = document.createElement('section');
-		section.className = 'video-project';
-
-		const categoryText = getCategoryName(post.category_code);
-		const items = post.post_items || [];
-
-		let videoHtml = '';
-
-		items.forEach(function (item) {
-			const youtubeId = item.youtube_id || getYoutubeId(item.video_url);
-
-			if (!youtubeId) {
-				return;
-			}
-
-			videoHtml += `
-				<div class="video-card">
-					<div class="video-thumb">
-						<iframe
-							class="video-embed"
-							src="https://www.youtube.com/embed/${escapeAttr(youtubeId)}"
-							title="${escapeAttr(item.caption || post.title)}"
-							allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-							referrerpolicy="strict-origin-when-cross-origin"
-							allowfullscreen>
-						</iframe>
-					</div>
-					<div class="video-info">
-						<h4 class="video-title">${escapeHtml(item.caption || post.title || '')}</h4>
-						${item.description ? `<p class="video-desc">${escapeHtml(item.description)}</p>` : ''}
-					</div>
-				</div>
-			`;
-		});
-
-		section.innerHTML = `
-			<div class="video-project-head">
-				<h3 class="video-project-title">${escapeHtml(post.title)}</h3>
-				<span class="video-project-category">${escapeHtml(categoryText)}</span>
-			</div>
-			${post.description ? `<p class="video-intro">${escapeHtml(post.description)}</p>` : ''}
-			<div class="video-grid">
-				${videoHtml}
-			</div>
-		`;
-
-		wrap.appendChild(section);
+	renderFeaturedCard({
+		cardId: 'featuredVideoCard',
+		post: post,
+		typeLabel: 'Video',
+		isVideo: true
 	});
 }
 
-// =========================================================
-// 게시판 코드로 게시글 조회
-// =========================================================
-async function getPostsByBoardCode(boardCode) {
+async function getLatestVisiblePostByBoardCode(boardCode) {
 	const { data: board, error: boardError } = await db
 		.from('boards')
-		.select('id')
+		.select('id, board_code')
 		.eq('board_code', boardCode)
 		.eq('is_visible', true)
-		.single();
+		.maybeSingle();
 
 	if (boardError) {
-		console.error(`${boardCode} 게시판 조회 실패:`, boardError);
-		return [];
+		console.error(`${boardCode} 게시판 조회 오류:`, boardError);
+		return null;
 	}
 
-	const { data: posts, error: postsError } = await db
+	if (!board) {
+		return null;
+	}
+
+	const { data: post, error: postError } = await db
 		.from('posts')
 		.select(`
-			*,
+			id,
+			board_id,
+			title,
+			caption,
+			description,
+			thumbnail_url,
+			sort_order,
+			is_visible,
+			category_code,
+			created_at,
 			post_items (
 				id,
 				item_type,
@@ -346,130 +174,114 @@ async function getPostsByBoardCode(boardCode) {
 		.eq('board_id', board.id)
 		.eq('is_visible', true)
 		.order('sort_order', { ascending: true })
-		.order('created_at', { ascending: false });
+		.order('created_at', { ascending: false })
+		.limit(1)
+		.maybeSingle();
 
-	if (postsError) {
-		console.error(`${boardCode} 게시글 조회 실패:`, postsError);
-		return [];
-	}
-
-	posts.forEach(function (post) {
-		post.post_items = (post.post_items || [])
-			.filter(function (item) {
-				return item.is_visible === true;
-			})
-			.sort(function (a, b) {
-				return (a.sort_order || 0) - (b.sort_order || 0);
-			});
-	});
-
-	return posts || [];
-}
-
-// =========================================================
-// 이미지 클릭 이벤트 재설정
-// =========================================================
-function resetImageClickEvents() {
-	document.querySelectorAll('.image-item img').forEach(function (image) {
-		image.addEventListener('click', function () {
-			openLightbox(image.src);
-		});
-	});
-}
-
-// =========================================================
-// 보조 함수
-// =========================================================
-function getFirstImageUrl(items) {
-	if (!items || items.length === 0) {
-		return '';
-	}
-
-	const item = items.find(function (row) {
-		return row.image_url;
-	});
-
-	return item ? item.image_url : '';
-}
-
-function getFirstVideoItem(items) {
-	if (!items || items.length === 0) {
+	if (postError) {
+		console.error(`${boardCode} 게시글 조회 오류:`, postError);
 		return null;
 	}
 
-	return items.find(function (row) {
-		return row.video_url || row.youtube_id;
-	}) || null;
+	if (!post) {
+		return null;
+	}
+
+	post.post_items = (post.post_items || [])
+		.filter(function(item) {
+			return item.is_visible === true;
+		})
+		.sort(function(a, b) {
+			return (a.sort_order || 0) - (b.sort_order || 0);
+		});
+
+	return post;
 }
 
-function getYoutubeId(url) {
-	if (!url) {
+function renderFeaturedCard(options) {
+	const card = document.getElementById(options.cardId);
+
+	if (!card || !options.post) {
+		return;
+	}
+
+	const post = options.post;
+	const firstItem = post.post_items && post.post_items.length > 0 ? post.post_items[0] : null;
+	const thumbnailUrl = getPostThumbnail(post, firstItem, options.isVideo);
+
+	card.classList.remove('is-empty');
+	card.href = `detail.html?id=${post.id}`;
+
+	card.innerHTML = `
+		${thumbnailUrl ? `<img src="${escapeAttr(thumbnailUrl)}" alt="${escapeAttr(post.title || '')}" class="feature-thumb" />` : `<div class="empty-box">썸네일이 등록되지 않았습니다.</div>`}
+		<div class="feature-dim"></div>
+		${options.isVideo ? `<span class="play-icon" aria-hidden="true"></span>` : ''}
+		<div class="feature-info">
+			<span class="feature-type">${escapeHtml(options.typeLabel)}</span>
+			<h3 class="feature-title">${escapeHtml(post.title || '')}</h3>
+			${post.caption ? `<p class="feature-caption">${escapeHtml(post.caption)}</p>` : ''}
+		</div>
+	`;
+}
+
+function getPostThumbnail(post, firstItem, isVideo) {
+	if (post.thumbnail_url) {
+		return post.thumbnail_url;
+	}
+
+	if (!firstItem) {
 		return '';
 	}
 
-	const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
-	const match = url.match(regExp);
+	if (!isVideo && firstItem.image_url) {
+		return firstItem.image_url;
+	}
 
-	if (match && match[2].length === 11) {
-		return match[2];
+	if (isVideo && firstItem.youtube_id) {
+		return `https://img.youtube.com/vi/${firstItem.youtube_id}/maxresdefault.jpg`;
+	}
+
+	if (isVideo && firstItem.video_url) {
+		const youtubeId = extractYoutubeId(firstItem.video_url);
+
+		if (youtubeId) {
+			return `https://img.youtube.com/vi/${youtubeId}/maxresdefault.jpg`;
+		}
 	}
 
 	return '';
 }
 
-function getCategoryName(categoryCode) {
-	const map = {
-		'performance': 'Performance',
-		'exhibition': 'Exhibition',
-		'festival-event': 'Festival / Event',
-		'interview': 'Interview'
-	};
-
-	return map[categoryCode] || '';
-}
-
-function getInstagramText(url) {
+function extractYoutubeId(url) {
 	if (!url) {
 		return '';
 	}
 
-	try {
-		const parsed = new URL(url);
-		const path = parsed.pathname.replaceAll('/', '');
+	const patterns = [
+		/youtu\.be\/([^?&]+)/,
+		/youtube\.com\/watch\?v=([^?&]+)/,
+		/youtube\.com\/embed\/([^?&]+)/,
+		/youtube\.com\/shorts\/([^?&]+)/
+	];
 
-		if (path) {
-			return '@' + path;
+	for (const pattern of patterns) {
+		const match = url.match(pattern);
+
+		if (match && match[1]) {
+			return match[1];
 		}
-	} catch (error) {
-		return url;
 	}
 
-	return url;
-}
-
-function getEmptySlide(text) {
-	return `
-		<div class="slide-card">
-			<div class="slide-image">
-				<div style="display:flex;align-items:center;justify-content:center;width:100%;height:100%;padding:30px;text-align:center;">
-					${escapeHtml(text)}
-				</div>
-			</div>
-		</div>
-	`;
-}
-
-function nl2br(value) {
-	return String(value || '').replaceAll('\n', '<br>');
+	return '';
 }
 
 function escapeHtml(value) {
 	return String(value || '')
-		.replaceAll('&', '&amp;')
-		.replaceAll('<', '&lt;')
-		.replaceAll('>', '&gt;')
-		.replaceAll('"', '&quot;')
-		.replaceAll("'", '&#039;');
+		.replace(/&/g, '&amp;')
+		.replace(/</g, '&lt;')
+		.replace(/>/g, '&gt;')
+		.replace(/"/g, '&quot;')
+		.replace(/'/g, '&#039;');
 }
 
 function escapeAttr(value) {
