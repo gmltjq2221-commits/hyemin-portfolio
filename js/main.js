@@ -137,6 +137,7 @@ function renderImageSlide(post) {
 		<div class="slide-card" onclick="location.href='detail.html?id=${post.id}'">
 			<div class="slide-image">
 				<img src="${escapeAttr(thumbnailUrl)}" alt="${escapeAttr(post.title || '')}">
+
 				<div class="slide-info">
 					<span>${escapeHtml(post.title || '')}</span>
 					<span>Photo</span>
@@ -147,18 +148,22 @@ function renderImageSlide(post) {
 }
 
 function renderVideoSlide(post) {
-	const firstItem = post.post_items && post.post_items.length > 0 ? post.post_items[0] : null;
+	const firstItem = getFirstVideoItem(post);
 	const youtubeId = firstItem ? (firstItem.youtube_id || extractYoutubeId(firstItem.video_url)) : '';
 
 	if (!youtubeId) {
 		return '';
 	}
 
+	const thumbUrl = `https://img.youtube.com/vi/${escapeAttr(youtubeId)}/hqdefault.jpg`;
+	const moveUrl = `videos.html?post=${encodeURIComponent(post.id)}&video=${encodeURIComponent(youtubeId)}`;
+
 	return `
-		<div class="slide-card video-click-card" onclick="location.href='detail.html?id=${post.id}'">
+		<div class="slide-card video-click-card" onclick="location.href='${moveUrl}'">
 			<div class="slide-image">
-				<iframe class="video-embed" src="https://www.youtube.com/embed/${escapeAttr(youtubeId)}" title="${escapeAttr(post.title || 'YouTube video')}" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
-				<div class="video-click-cover"></div>
+				<img src="${thumbUrl}" alt="${escapeAttr(post.title || 'YouTube video')}">
+				<span class="play-button">▶</span>
+
 				<div class="slide-info">
 					<span>${escapeHtml(post.title || '')}</span>
 					<span>Video</span>
@@ -166,6 +171,16 @@ function renderVideoSlide(post) {
 			</div>
 		</div>
 	`;
+}
+
+function getFirstVideoItem(post) {
+	if (!post.post_items || post.post_items.length === 0) {
+		return null;
+	}
+
+	return post.post_items.find(function(item) {
+		return item.item_type === 'video' && (item.youtube_id || extractYoutubeId(item.video_url));
+	}) || null;
 }
 
 async function getBoardByCode(boardCode) {
