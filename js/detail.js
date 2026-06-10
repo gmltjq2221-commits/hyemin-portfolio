@@ -4,34 +4,62 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 function initCommonUi() {
-	const menuBtn = document.getElementById('menuBtn');
-	const nav = document.getElementById('nav');
 	const year = document.getElementById('year');
-
-	if (menuBtn && nav) {
-		menuBtn.addEventListener('click', function() {
-			nav.classList.toggle('active');
-		});
-
-		nav.querySelectorAll('a').forEach(function(link) {
-			link.addEventListener('click', function() {
-				nav.classList.remove('active');
-			});
-		});
-	}
 
 	if (year) {
 		year.textContent = new Date().getFullYear();
 	}
+
+	document.addEventListener('click', function(event) {
+		if (!event.target.closest('header')) {
+			closeMobileMenu();
+		}
+	});
+
+	document.querySelectorAll('#siteMenu a').forEach(function(link) {
+		link.addEventListener('click', function() {
+			closeMobileMenu();
+		});
+	});
+
+	document.addEventListener('keydown', function(event) {
+		if (event.key === 'Escape') {
+			closeMobileMenu();
+		}
+	});
+}
+
+function toggleMobileMenu(event) {
+	event.stopPropagation();
+
+	const menu = document.getElementById('siteMenu');
+	const button = document.querySelector('.mobile-menu-btn');
+	const isOpen = menu.classList.toggle('open');
+
+	button.classList.toggle('open', isOpen);
+	button.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+	button.setAttribute('aria-label', isOpen ? '메뉴 닫기' : '메뉴 열기');
+}
+
+function closeMobileMenu() {
+	const menu = document.getElementById('siteMenu');
+	const button = document.querySelector('.mobile-menu-btn');
+
+	if (!menu || !button) {
+		return;
+	}
+
+	menu.classList.remove('open');
+	button.classList.remove('open');
+	button.setAttribute('aria-expanded', 'false');
+	button.setAttribute('aria-label', '메뉴 열기');
 }
 
 async function loadDetailData() {
 	const loading = document.getElementById('loading');
-	const itemList = document.getElementById('itemList');
 	const postId = getPostId();
 
 	if (!postId) {
-		renderEmpty(itemList, '잘못된 접근입니다.');
 		hideLoading(loading);
 		return;
 	}
@@ -40,7 +68,6 @@ async function loadDetailData() {
 		const post = await getPostDetail(postId);
 
 		if (!post) {
-			renderEmpty(itemList, '게시글을 찾을 수 없습니다.');
 			return;
 		}
 
@@ -49,7 +76,6 @@ async function loadDetailData() {
 		setBackLink(post);
 	} catch (error) {
 		console.error('상세 데이터 로딩 오류:', error);
-		renderEmpty(itemList, '데이터를 불러오는 중 오류가 발생했습니다.');
 	} finally {
 		hideLoading(loading);
 	}
@@ -57,13 +83,7 @@ async function loadDetailData() {
 
 function getPostId() {
 	const params = new URLSearchParams(window.location.search);
-	const id = params.get('id');
-
-	if (!id) {
-		return '';
-	}
-
-	return id;
+	return params.get('id') || '';
 }
 
 async function getPostDetail(postId) {
@@ -124,35 +144,13 @@ async function getPostDetail(postId) {
 }
 
 function renderPostDetail(post) {
-	const detailTitle = document.getElementById('detailTitle');
-	const detailCaption = document.getElementById('detailCaption');
-	const detailDescription = document.getElementById('detailDescription');
-	const detailCategory = document.getElementById('detailCategory');
-	const footerText = document.getElementById('footerText');
 	const categoryName = getCategoryName(post.category_code);
 
 	document.title = `${post.title || 'Detail'} - HHM Film`;
-
-	if (detailTitle) {
-		detailTitle.textContent = post.title || '';
-	}
-
-	if (detailCaption) {
-		detailCaption.textContent = post.caption || '';
-	}
-
-	if (detailDescription) {
-		detailDescription.textContent = post.description || '';
-	}
-
-	if (detailCategory && categoryName) {
-		detailCategory.textContent = categoryName;
-		detailCategory.style.display = 'inline-flex';
-	}
-
-	if (footerText) {
-		footerText.textContent = post.title || 'Detail';
-	}
+	setText('detailTitle', post.title);
+	setText('detailCaption', post.caption);
+	setText('detailDescription', post.description);
+	setText('detailCategory', categoryName);
 }
 
 function renderPostItems(post) {
@@ -165,7 +163,6 @@ function renderPostItems(post) {
 	itemList.innerHTML = '';
 
 	if (!post.post_items || post.post_items.length === 0) {
-		renderEmpty(itemList, '등록된 이미지 또는 영상이 없습니다.');
 		return;
 	}
 
@@ -186,7 +183,9 @@ function renderImageItem(target, item) {
 
 	target.insertAdjacentHTML('beforeend', `
 		<article class="item-box">
-			<img src="${escapeAttr(item.image_url)}" alt="${escapeAttr(item.caption || '')}" class="item-image" />
+			<div class="item-image-wrap">
+				<img src="${escapeAttr(item.image_url)}" alt="${escapeAttr(item.caption || '')}" class="item-image">
+			</div>
 			${getItemInfoHtml(item)}
 		</article>
 	`);
@@ -202,7 +201,7 @@ function renderVideoItem(target, item) {
 	target.insertAdjacentHTML('beforeend', `
 		<article class="item-box">
 			<div class="video-wrap">
-				<iframe src="https://www.youtube.com/embed/${escapeAttr(youtubeId)}" title="${escapeAttr(item.caption || 'YouTube video')}" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+				<iframe src="https://www.youtube.com/embed/${escapeAttr(youtubeId)}" title="${escapeAttr(item.caption || 'YouTube video')}" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
 			</div>
 			${getItemInfoHtml(item)}
 		</article>
@@ -279,16 +278,12 @@ function getCategoryName(categoryCode) {
 	return categories[categoryCode] || '';
 }
 
-function renderEmpty(target, message) {
-	if (!target) {
-		return;
-	}
+function setText(id, value) {
+	const element = document.getElementById(id);
 
-	target.innerHTML = `
-		<div class="empty-box">
-			${escapeHtml(message)}
-		</div>
-	`;
+	if (element) {
+		element.textContent = value || '';
+	}
 }
 
 function hideLoading(loading) {
