@@ -39,21 +39,53 @@ async function loadSiteProfile() {
 		return;
 	}
 
-	setText('artistName', data.artist_name);
-	setText('artistTitle', data.artist_title);
-	setText('artistMessage', data.artist_message);
-	setText('artistPhone', data.phone);
+	const aboutText = document.getElementById('aboutText');
+	const artistMessage = document.getElementById('artistMessage');
+	const aboutInfo = document.getElementById('aboutInfo');
 
-	const artistEmail = document.getElementById('artistEmail');
-	const artistInstagram = document.getElementById('artistInstagram');
-
-	if (artistEmail) {
-		artistEmail.innerHTML = data.email ? `<a href="mailto:${escapeAttr(data.email)}">${escapeHtml(data.email)}</a>` : '';
+	if (artistMessage) {
+		artistMessage.textContent = data.artist_message || '';
 	}
 
-	if (artistInstagram) {
-		artistInstagram.innerHTML = data.instagram_url ? `<a href="${escapeAttr(data.instagram_url)}" target="_blank" rel="noopener noreferrer">Instagram</a>` : '';
+	if (aboutText && !data.artist_message) {
+		aboutText.style.display = 'none';
 	}
+
+	if (!aboutInfo) {
+		return;
+	}
+
+	aboutInfo.innerHTML = '';
+
+	appendInfoRow(aboutInfo, 'Name', data.artist_name);
+	appendInfoRow(aboutInfo, 'Title', data.artist_title);
+	appendInfoRow(aboutInfo, 'Email', data.email, data.email ? `mailto:${data.email}` : '');
+	appendInfoRow(aboutInfo, 'Instagram', data.instagram_url ? 'Instagram' : '', data.instagram_url);
+	appendInfoRow(aboutInfo, 'Phone', data.phone);
+	appendInfoRow(aboutInfo, 'Category', 'Photo / Video');
+
+	if (aboutInfo.children.length === 0) {
+		aboutInfo.style.display = 'none';
+	}
+}
+
+function appendInfoRow(target, label, value, link) {
+	if (!target || !value) {
+		return;
+	}
+
+	const safeLabel = escapeHtml(label);
+	const safeValue = escapeHtml(value);
+	const safeLink = link ? escapeAttr(link) : '';
+
+	target.insertAdjacentHTML('beforeend', `
+		<div class="info-row">
+			<strong>${safeLabel}</strong>
+			<span>
+				${safeLink ? `<a href="${safeLink}" target="${safeLink.startsWith('mailto:') ? '_self' : '_blank'}" rel="noopener noreferrer">${safeValue}</a>` : safeValue}
+			</span>
+		</div>
+	`);
 }
 
 async function loadFeaturedPosts(boardCode, sliderId, isVideo) {
