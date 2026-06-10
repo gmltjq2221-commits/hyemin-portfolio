@@ -1,199 +1,244 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-	<meta charset="UTF-8" />
-	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-	<title>HHM Film</title>
-
-	<link rel="preconnect" href="https://fonts.googleapis.com" />
-	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-	<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600;700&family=Pretendard:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>HHM Film Portfolio</title>
 
 	<style>
+		:root { --white: #ffffff; --black: #080808; --text: #111111; --muted: #767676; --line: #dedede; --line-dark: #242424; --soft: #f5f5f5; --header-h: 82px; }
 		* { box-sizing: border-box; margin: 0; padding: 0; }
-		html { scroll-behavior: smooth; }
-		body { font-family: "Pretendard", sans-serif; background: #0f0f0f; color: #f5f5f5; line-height: 1.6; }
+		html { scroll-behavior: smooth; scroll-snap-type: y proximity; }
+		body { font-family: Arial, "Noto Sans KR", sans-serif; color: var(--text); background: var(--white); overflow-x: hidden; }
 		a { color: inherit; text-decoration: none; }
-		img { display: block; width: 100%; }
-		button { font-family: inherit; border: 0; background: none; cursor: pointer; }
-
-		.wrap { width: 100%; min-height: 100vh; overflow-x: hidden; }
-		.header { position: fixed; top: 0; left: 0; z-index: 100; width: 100%; padding: 24px 48px; background: rgba(15, 15, 15, 0.72); backdrop-filter: blur(14px); border-bottom: 1px solid rgba(255, 255, 255, 0.08); }
-		.header-inner { display: flex; align-items: center; justify-content: space-between; gap: 24px; max-width: 1440px; margin: 0 auto; }
-		.logo { font-family: "Playfair Display", serif; font-size: 28px; font-weight: 700; letter-spacing: 0.12em; white-space: nowrap; }
-		.nav { display: flex; align-items: center; gap: 34px; }
-		.nav a { position: relative; font-size: 14px; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; color: rgba(255, 255, 255, 0.76); transition: color 0.25s ease; }
-		.nav a:hover, .nav a.active { color: #fff; }
-		.nav a::after { content: ""; position: absolute; left: 0; bottom: -6px; width: 0; height: 1px; background: #fff; transition: width 0.25s ease; }
-		.nav a:hover::after, .nav a.active::after { width: 100%; }
-		.menu-btn { display: none; width: 34px; height: 24px; flex-direction: column; justify-content: space-between; }
-		.menu-btn span { display: block; width: 100%; height: 2px; background: #fff; }
-
-		.main { padding-top: 84px; }
-		.section { min-height: 100vh; padding: 110px 48px; }
-		.section-inner { width: 100%; max-width: 1440px; margin: 0 auto; }
-
-		.featured-section { display: flex; align-items: center; background: #f5f5f5; color: #111; }
-		.section-head { display: flex; align-items: end; justify-content: space-between; gap: 24px; margin-bottom: 44px; }
-		.section-title { font-family: "Playfair Display", serif; font-size: clamp(42px, 6vw, 84px); font-weight: 700; line-height: 1; letter-spacing: -0.03em; }
-		.section-desc { max-width: 430px; font-size: 15px; color: rgba(17, 17, 17, 0.64); }
-		.feature-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 28px; }
-		.feature-card { position: relative; display: block; min-height: 620px; overflow: hidden; background: #111; color: #fff; }
-		.feature-card.is-empty { pointer-events: none; }
-		.feature-thumb { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0.86; transform: scale(1.01); transition: transform 0.55s ease, opacity 0.35s ease; }
-		.feature-card:hover .feature-thumb { transform: scale(1.06); opacity: 0.72; }
-		.feature-dim { position: absolute; inset: 0; background: linear-gradient(to top, rgba(0, 0, 0, 0.82), rgba(0, 0, 0, 0.08) 62%, rgba(0, 0, 0, 0.2)); }
-		.feature-info { position: absolute; left: 32px; right: 32px; bottom: 32px; z-index: 2; }
-		.feature-type { display: inline-flex; margin-bottom: 14px; padding: 7px 12px; border: 1px solid rgba(255, 255, 255, 0.38); border-radius: 999px; font-size: 12px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; }
-		.feature-title { font-size: clamp(28px, 3vw, 44px); font-weight: 700; line-height: 1.18; word-break: keep-all; }
-		.feature-caption { margin-top: 12px; font-size: 15px; color: rgba(255, 255, 255, 0.72); word-break: keep-all; }
-		.play-icon { position: absolute; top: 32px; right: 32px; z-index: 2; display: flex; align-items: center; justify-content: center; width: 74px; height: 74px; border: 1px solid rgba(255, 255, 255, 0.58); border-radius: 50%; background: rgba(0, 0, 0, 0.24); backdrop-filter: blur(8px); }
-		.play-icon::before { content: ""; display: block; margin-left: 5px; width: 0; height: 0; border-top: 12px solid transparent; border-bottom: 12px solid transparent; border-left: 18px solid #fff; }
-		.empty-box { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; padding: 30px; background: #191919; color: rgba(255, 255, 255, 0.54); font-size: 15px; text-align: center; }
-
-		.about-section { display: flex; align-items: center; background: #0f0f0f; color: #f5f5f5; }
-		.about-grid { display: grid; grid-template-columns: 0.86fr 1.14fr; gap: 70px; align-items: center; }
-		.profile-image-wrap { position: relative; overflow: hidden; background: #1d1d1d; aspect-ratio: 4 / 5; }
-		.profile-image { width: 100%; height: 100%; object-fit: cover; }
-		.profile-empty { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; color: rgba(255, 255, 255, 0.42); font-size: 14px; }
-		.about-label { margin-bottom: 18px; font-size: 13px; font-weight: 600; letter-spacing: 0.16em; text-transform: uppercase; color: rgba(255, 255, 255, 0.54); }
-		.about-name { font-family: "Playfair Display", serif; font-size: clamp(42px, 6vw, 86px); font-weight: 700; line-height: 1; letter-spacing: -0.04em; }
-		.about-title { margin-top: 16px; font-size: 18px; color: rgba(255, 255, 255, 0.62); }
-		.about-message { margin-top: 40px; max-width: 720px; font-size: clamp(18px, 2vw, 25px); font-weight: 300; line-height: 1.72; color: rgba(255, 255, 255, 0.84); white-space: pre-line; word-break: keep-all; }
-		.about-contact { display: flex; flex-wrap: wrap; gap: 14px; margin-top: 42px; }
-		.about-contact a, .about-contact span { display: inline-flex; align-items: center; min-height: 42px; padding: 0 18px; border: 1px solid rgba(255, 255, 255, 0.22); border-radius: 999px; font-size: 14px; color: rgba(255, 255, 255, 0.76); }
-
-		.footer { padding: 32px 48px; border-top: 1px solid rgba(255, 255, 255, 0.1); background: #0f0f0f; color: rgba(255, 255, 255, 0.42); font-size: 13px; }
-		.footer-inner { max-width: 1440px; margin: 0 auto; display: flex; justify-content: space-between; gap: 20px; }
-		.loading { position: fixed; left: 50%; bottom: 30px; z-index: 200; transform: translateX(-50%); padding: 12px 18px; border-radius: 999px; background: rgba(0, 0, 0, 0.78); color: rgba(255, 255, 255, 0.78); font-size: 13px; backdrop-filter: blur(8px); }
+		img { display: block; width: 100%; height: 100%; object-fit: cover; }
+		button { font-family: inherit; }
+		header { position: fixed; top: 0; left: 0; z-index: 100; width: 100%; background: rgba(255, 255, 255, 0.94); border-bottom: 1px solid var(--line); backdrop-filter: blur(14px); }
+		.nav { display: flex; align-items: center; justify-content: space-between; max-width: 1440px; height: var(--header-h); margin: 0 auto; padding: 0 48px; }
+		.logo { font-size: 18px; font-weight: 800; letter-spacing: 0.08em; }
+		.logo span { display: block; margin-top: 4px; font-size: 10px; font-weight: 500; color: var(--muted); letter-spacing: 0.22em; }
+		.nav-head { display: flex; align-items: center; justify-content: space-between; }
+		.mobile-menu-btn { display: none; align-items: center; justify-content: center; flex-direction: column; gap: 5px; width: 44px; height: 44px; border: 1px solid var(--black); background: var(--white); cursor: pointer; }
+		.mobile-menu-btn span { display: block; width: 18px; height: 2px; background: var(--black); transition: 0.2s ease; }
+		.mobile-menu-btn.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+		.mobile-menu-btn.open span:nth-child(2) { opacity: 0; }
+		.mobile-menu-btn.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+		.menu { display: flex; align-items: center; gap: 8px; }
+		.menu-link { display: inline-flex; align-items: center; justify-content: center; min-height: 38px; padding: 0 15px; border: 1px solid transparent; background: transparent; color: var(--text); font-size: 13px; font-weight: 700; letter-spacing: 0.04em; cursor: pointer; transition: 0.2s ease; }
+		.menu-link:hover, .menu-link.active { border-color: var(--black); background: var(--black); color: var(--white); }
+		main { padding-top: var(--header-h); }
+		.snap-section { scroll-snap-align: start; scroll-margin-top: var(--header-h); min-height: calc(100vh - var(--header-h)); scroll-snap-stop: always; }
+		.section { max-width: 1440px; margin: 0 auto; padding: 100px 48px; }
+		.kicker { margin-bottom: 14px; font-size: 12px; font-weight: 800; color: var(--muted); letter-spacing: 0.2em; text-transform: uppercase; }
+		.section-title { font-size: clamp(44px, 7vw, 96px); font-weight: 500; letter-spacing: -0.07em; line-height: 0.95; }
+		.featured { min-height: calc(100vh - var(--header-h)); display: flex; flex-direction: column; justify-content: center; border-bottom: 1px solid var(--line); }
+		.featured-grid { display: flex; flex-direction: column; gap: 28px; width: 100%; }
+		.featured-block { border: 1px solid var(--black); background: var(--white); }
+		.featured-block.black { background: var(--black); color: var(--white); }
+		.featured-block .slider-wrap { position: relative; }
+		.featured-block:not(.black) .slide-image { aspect-ratio: 16 / 9; }
+		.featured-block.black .slide-image { aspect-ratio: 16 / 9; }
+		.featured-block .slide-card { flex: 0 0 calc(50% - 10px); min-width: 420px; }
+		.featured-block .slider { gap: 20px; padding: 22px; }
+		.block-label { display: flex; align-items: center; justify-content: space-between; padding: 22px 24px; border-bottom: 1px solid currentColor; font-size: 16px; font-weight: 800; letter-spacing: 0.04em; }
+		.slider-wrap { position: relative; }
+		.slider { display: flex; gap: 14px; overflow-x: auto; scroll-behavior: smooth; scroll-snap-type: x mandatory; padding: 14px; scrollbar-width: none; }
+		.slider::-webkit-scrollbar { display: none; }
+		.slider.is-empty { min-height: 0; padding: 0; }
+		.slide-card { position: relative; flex: 0 0 calc(50% - 7px); min-width: 260px; scroll-snap-align: start; background: var(--soft); cursor: pointer; }
+		.slide-image { position: relative; aspect-ratio: 4 / 3; overflow: hidden; }
+		.slide-image img { transition: 0.25s ease; }
+		.slide-card:hover .slide-image img { opacity: 0.76; transform: scale(1.035); }
+		.featured-block.black .slide-card { background: #171717; }
+		.slide-info { position: absolute; left: 0; right: 0; bottom: 0; display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 14px; background: rgba(255, 255, 255, 0.9); color: var(--black); font-size: 13px; font-weight: 800; }
+		.featured-block.black .slide-info { background: rgba(0, 0, 0, 0.78); color: var(--white); }
+		.slider-btn { position: absolute; top: 50%; z-index: 2; width: 42px; height: 42px; border: 1px solid var(--black); border-radius: 50%; background: var(--white); color: var(--black); font-size: 24px; cursor: pointer; transform: translateY(-50%); transition: 0.2s ease; }
+		.slider-btn:hover { background: var(--black); color: var(--white); }
+		.featured-block.black .slider-btn { border-color: var(--white); background: var(--black); color: var(--white); }
+		.featured-block.black .slider-btn:hover { background: var(--white); color: var(--black); }
+		.slider-btn.prev { left: 10px; }
+		.slider-btn.next { right: 10px; }
+		.play-button { position: absolute; left: 50%; top: 50%; z-index: 2; display: flex; align-items: center; justify-content: center; width: 62px; height: 62px; border: 1px solid var(--white); border-radius: 50%; background: rgba(0, 0, 0, 0.68); color: var(--white); font-size: 22px; transform: translate(-50%, -50%); }
+		.about-wrap { display: grid; grid-template-columns: minmax(0, 0.9fr) minmax(300px, 0.45fr); gap: 48px; align-items: start; margin-top: 42px; }
+		.about-text { max-width: 760px; font-size: 18px; line-height: 1.9; color: #333333; word-break: keep-all; }
+		.about-text h3 { margin-bottom: 18px; font-size: clamp(28px, 3vw, 44px); font-weight: 500; letter-spacing: -0.045em; }
+		.about-text p + p { margin-top: 16px; }
+		.about-info { border: 1px solid var(--black); background: var(--black); color: var(--white); }
+		.info-row { display: flex; justify-content: space-between; gap: 16px; padding: 18px; border-bottom: 1px solid var(--line-dark); font-size: 14px; }
+		.info-row:last-child { border-bottom: 0; }
+		.info-row strong { color: #a8a8a8; font-weight: 700; }
+		.info-row span { text-align: right; font-weight: 800; word-break: break-all; }
+		.info-row a { color: inherit; text-decoration: underline; text-underline-offset: 4px; }
+		.info-row a:hover { color: #cfcfcf; }
+		footer { padding: 34px 48px; border-top: 1px solid var(--line); text-align: center; color: var(--muted); font-size: 13px; }
+		.loading { position: fixed; left: 50%; bottom: 28px; z-index: 200; transform: translateX(-50%); padding: 12px 18px; border-radius: 999px; background: rgba(0, 0, 0, 0.78); color: rgba(255, 255, 255, 0.78); font-size: 13px; backdrop-filter: blur(8px); }
 		.loading.hide { display: none; }
-
-		@media (max-width: 1024px) {
-			.header { padding: 20px 28px; }
-			.section { padding: 90px 28px; }
-			.feature-card { min-height: 520px; }
-			.about-grid { grid-template-columns: 1fr; gap: 44px; }
-			.profile-image-wrap { max-width: 520px; }
-		}
-
-		@media (max-width: 768px) {
-			.header { padding: 18px 20px; }
-			.logo { font-size: 23px; }
-			.menu-btn { display: flex; }
-			.nav { position: fixed; top: 69px; left: 0; display: none; width: 100%; padding: 24px 20px 28px; flex-direction: column; align-items: flex-start; gap: 18px; background: rgba(15, 15, 15, 0.96); border-bottom: 1px solid rgba(255, 255, 255, 0.08); }
-			.nav.active { display: flex; }
-			.main { padding-top: 69px; }
-			.section { min-height: auto; padding: 72px 20px; }
-			.section-head { display: block; margin-bottom: 28px; }
-			.section-desc { margin-top: 16px; }
-			.feature-grid { grid-template-columns: 1fr; gap: 18px; }
-			.feature-card { min-height: 420px; }
-			.feature-info { left: 22px; right: 22px; bottom: 24px; }
-			.play-icon { top: 22px; right: 22px; width: 58px; height: 58px; }
-			.footer { padding: 28px 20px; }
-			.footer-inner { display: block; }
-			.footer-inner p + p { margin-top: 8px; }
-		}
+		@media (max-width: 1100px) { .about-wrap { grid-template-columns: 1fr; } .featured-block .slide-card { flex: 0 0 calc(45% - 7px); } }
+		@media (max-width: 860px) { :root { --header-h: auto; } html { scroll-snap-type: none; } header { position: sticky; } .nav { height: auto; align-items: stretch; flex-direction: column; gap: 0; padding: 14px 20px; } .nav-head { width: 100%; } .mobile-menu-btn { display: inline-flex; } .menu { display: none; grid-template-columns: 1fr; gap: 8px; width: 100%; margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--line); } .menu.open { display: grid; } .menu-link { justify-content: space-between; width: 100%; min-height: 46px; padding: 0 16px; border-color: var(--line); font-size: 14px; } main { padding-top: 0; } .section { padding: 76px 22px; } .featured { min-height: auto; } .featured-grid { gap: 20px; } .featured-block .slide-card, .slide-card { flex-basis: 78%; min-width: 220px; } .featured-block:not(.black) .slide-image { aspect-ratio: 4 / 3; } .featured-block.black .slide-image { aspect-ratio: 16 / 9; } .slider-btn { display: none; } }
+		@media (max-width: 560px) { .logo { font-size: 16px; } .menu { grid-template-columns: 1fr; } .section { padding: 64px 18px; } .section-title { font-size: clamp(42px, 16vw, 64px); } .about-text { font-size: 15px; line-height: 1.75; } .featured-block { margin: 0 -1px; } .block-label { padding: 15px; } .info-row { flex-direction: column; gap: 6px; } .info-row span { text-align: left; } footer { padding: 28px 18px; } }
 	</style>
 </head>
 
 <body>
-	<div class="wrap">
-		<header class="header">
-			<div class="header-inner">
-				<a href="index.html" class="logo">HHM FILM</a>
+	<header>
+		<nav class="nav">
+			<div class="nav-head">
+				<a href="index.html" class="logo">
+					HHM FILM
+					<span>PHOTO · VIDEO</span>
+				</a>
 
-				<button type="button" class="menu-btn" id="menuBtn" aria-label="메뉴 열기">
+				<button type="button" class="mobile-menu-btn" onclick="toggleMobileMenu(event)" aria-label="메뉴 열기" aria-controls="siteMenu" aria-expanded="false">
 					<span></span>
 					<span></span>
 					<span></span>
 				</button>
-
-				<nav class="nav" id="nav">
-					<a href="index.html" class="active">Home</a>
-					<a href="images.html">Image</a>
-					<a href="videos.html">Video</a>
-					<a href="index.html#about">About</a>
-				</nav>
 			</div>
-		</header>
 
-		<main class="main">
-			<section class="section featured-section" id="featured">
-				<div class="section-inner">
-					<div class="section-head">
-						<h1 class="section-title">Featured</h1>
-						<p class="section-desc">대표 이미지와 대표 동영상을 확인할 수 있습니다.</p>
+			<div id="siteMenu" class="menu">
+				<a href="index.html" class="menu-link active">Home</a>
+				<a href="images.html" class="menu-link">Image</a>
+				<a href="videos.html" class="menu-link">Video</a>
+				<a href="index.html#about" class="menu-link">About</a>
+			</div>
+		</nav>
+	</header>
+
+	<main>
+		<section id="home" class="section featured snap-section">
+			<div class="featured-grid">
+				<div class="featured-block">
+					<div class="block-label">
+						<span>Photography 대표작</span>
+						<span>01</span>
 					</div>
 
-					<div class="feature-grid">
-						<a href="javascript:void(0);" class="feature-card is-empty" id="featuredImageCard">
-							<div class="empty-box">대표 이미지가 등록되지 않았습니다.</div>
-						</a>
-
-						<a href="javascript:void(0);" class="feature-card is-empty" id="featuredVideoCard">
-							<div class="empty-box">대표 동영상이 등록되지 않았습니다.</div>
-						</a>
+					<div class="slider-wrap">
+						<button type="button" class="slider-btn prev" onclick="moveSlider('photoSlider', -1)">‹</button>
+						<div id="photoSlider" class="slider" data-auto-slider></div>
+						<button type="button" class="slider-btn next" onclick="moveSlider('photoSlider', 1)">›</button>
 					</div>
 				</div>
-			</section>
 
-			<section class="section about-section" id="about">
-				<div class="section-inner">
-					<div class="about-grid">
-						<div class="profile-image-wrap">
-							<img src="" alt="" class="profile-image" id="profileImage" style="display: none;" />
-							<div class="profile-empty" id="profileEmpty">프로필 이미지가 등록되지 않았습니다.</div>
-						</div>
+				<div class="featured-block black">
+					<div class="block-label">
+						<span>Videography 대표작</span>
+						<span>02</span>
+					</div>
 
-						<div class="about-content">
-							<p class="about-label">About</p>
-							<h2 class="about-name" id="artistName"></h2>
-							<p class="about-title" id="artistTitle"></p>
-							<p class="about-message" id="artistMessage"></p>
-							<div class="about-contact" id="aboutContact"></div>
-						</div>
+					<div class="slider-wrap">
+						<button type="button" class="slider-btn prev" onclick="moveSlider('videoSlider', -1)">‹</button>
+						<div id="videoSlider" class="slider" data-auto-slider></div>
+						<button type="button" class="slider-btn next" onclick="moveSlider('videoSlider', 1)">›</button>
 					</div>
 				</div>
-			</section>
-		</main>
-
-		<footer class="footer">
-			<div class="footer-inner">
-				<p>© <span id="year"></span> HHM Film.</p>
-				<p id="footerArtist"></p>
 			</div>
-		</footer>
+		</section>
 
-		<div class="loading" id="loading">데이터를 불러오는 중입니다.</div>
-	</div>
+		<section id="about" class="section snap-section">
+			<p class="kicker">About</p>
+			<h2 class="section-title">HHM<br>Film</h2>
+
+			<div class="about-wrap">
+				<div class="about-text">
+					<h3>작가의 말</h3>
+					<p id="artistMessage"></p>
+				</div>
+
+				<div class="about-info">
+					<div class="info-row"><strong>Name</strong><span id="artistName"></span></div>
+					<div class="info-row"><strong>Title</strong><span id="artistTitle"></span></div>
+					<div class="info-row"><strong>Email</strong><span id="artistEmail"></span></div>
+					<div class="info-row"><strong>Instagram</strong><span id="artistInstagram"></span></div>
+					<div class="info-row"><strong>Phone</strong><span id="artistPhone"></span></div>
+					<div class="info-row"><strong>Category</strong><span>Photo / Video</span></div>
+				</div>
+			</div>
+		</section>
+	</main>
+
+	<footer>
+		© <span id="year"></span> HHM FILM. All rights reserved.
+	</footer>
+
+	<div class="loading" id="loading">Loading</div>
 
 	<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 	<script src="js/supabase.js"></script>
 	<script src="js/main.js"></script>
 
 	<script>
-		document.addEventListener('DOMContentLoaded', function() {
-			const menuBtn = document.getElementById('menuBtn');
-			const nav = document.getElementById('nav');
-			const year = document.getElementById('year');
+		function moveSlider(id, direction) {
+			const slider = document.getElementById(id);
+			if (!slider) { return; }
+			const card = slider.querySelector('.slide-card');
+			if (!card) { return; }
+			const gap = 20;
+			const moveWidth = card.offsetWidth + gap;
+			slider.scrollLeft += moveWidth * direction;
+		}
 
-			if (menuBtn && nav) {
-				menuBtn.addEventListener('click', function() {
-					nav.classList.toggle('active');
-				});
+		function startAutoSliders() {
+			const sliders = document.querySelectorAll('[data-auto-slider]');
+			sliders.forEach((slider) => {
+				let paused = false;
+				slider.addEventListener('mouseenter', () => paused = true);
+				slider.addEventListener('mouseleave', () => paused = false);
+				slider.addEventListener('touchstart', () => paused = true, { passive: true });
+				slider.addEventListener('touchend', () => paused = false);
+				setInterval(() => {
+					if (paused) { return; }
+					const card = slider.querySelector('.slide-card');
+					if (!card) { return; }
+					const gap = 20;
+					const moveWidth = card.offsetWidth + gap;
+					const maxScroll = slider.scrollWidth - slider.clientWidth - 5;
+					if (slider.scrollLeft >= maxScroll) {
+						slider.scrollTo({ left: 0, behavior: 'smooth' });
+						return;
+					}
+					slider.scrollBy({ left: moveWidth, behavior: 'smooth' });
+				}, 7600);
+			});
+		}
 
-				nav.querySelectorAll('a').forEach(function(link) {
-					link.addEventListener('click', function() {
-						nav.classList.remove('active');
-					});
-				});
-			}
+		function toggleMobileMenu(event) {
+			event.stopPropagation();
+			const menu = document.getElementById('siteMenu');
+			const button = document.querySelector('.mobile-menu-btn');
+			const isOpen = menu.classList.toggle('open');
+			button.classList.toggle('open', isOpen);
+			button.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+			button.setAttribute('aria-label', isOpen ? '메뉴 닫기' : '메뉴 열기');
+		}
 
-			if (year) {
-				year.textContent = new Date().getFullYear();
+		function closeMobileMenu() {
+			const menu = document.getElementById('siteMenu');
+			const button = document.querySelector('.mobile-menu-btn');
+			if (!menu || !button) { return; }
+			menu.classList.remove('open');
+			button.classList.remove('open');
+			button.setAttribute('aria-expanded', 'false');
+			button.setAttribute('aria-label', '메뉴 열기');
+		}
+
+		document.addEventListener('click', (event) => {
+			if (!event.target.closest('header')) {
+				closeMobileMenu();
 			}
 		});
+
+		document.querySelectorAll('#siteMenu a').forEach((link) => {
+			link.addEventListener('click', () => closeMobileMenu());
+		});
+
+		document.addEventListener('keydown', (event) => {
+			if (event.key === 'Escape') {
+				closeMobileMenu();
+			}
+		});
+
+		document.getElementById('year').textContent = new Date().getFullYear();
 	</script>
 </body>
 </html>
