@@ -4,6 +4,8 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 function initCommonUi() {
+	const menu = document.getElementById('siteMenu');
+	const button = document.querySelector('.mobile-menu-btn');
 	const year = document.getElementById('year');
 
 	if (year) {
@@ -16,11 +18,11 @@ function initCommonUi() {
 		}
 	});
 
-	document.querySelectorAll('#siteMenu a').forEach(function(link) {
-		link.addEventListener('click', function() {
-			closeMobileMenu();
+	if (menu) {
+		menu.querySelectorAll('a').forEach(function(link) {
+			link.addEventListener('click', closeMobileMenu);
 		});
-	});
+	}
 
 	document.addEventListener('keydown', function(event) {
 		if (event.key === 'Escape') {
@@ -34,6 +36,11 @@ function toggleMobileMenu(event) {
 
 	const menu = document.getElementById('siteMenu');
 	const button = document.querySelector('.mobile-menu-btn');
+
+	if (!menu || !button) {
+		return;
+	}
+
 	const isOpen = menu.classList.toggle('open');
 
 	button.classList.toggle('open', isOpen);
@@ -75,7 +82,12 @@ async function loadArchiveData() {
 		}
 
 		const posts = await getPostsByBoardId(board.id);
-		renderArchiveList(archiveList, posts, pageKind);
+
+		if (pageKind === 'video') {
+			renderVideoList(archiveList, posts);
+		} else {
+			renderImageList(archiveList, posts);
+		}
 	} catch (error) {
 		console.error('목록 데이터 로딩 오류:', error);
 		archiveList.innerHTML = '';
@@ -149,36 +161,14 @@ async function getPostsByBoardId(boardId) {
 	});
 }
 
-function renderArchiveList(target, posts, pageKind) {
+function renderImageList(target, posts) {
 	target.innerHTML = '';
 
-	if (!posts || posts.length === 0) {
-		return;
-	}
-
-	const isVideo = pageKind === 'video';
-
-	posts.forEach(function(post) {
+	(posts || []).forEach(function(post) {
 		const firstItem = post.post_items && post.post_items.length > 0 ? post.post_items[0] : null;
-		const thumbnailUrl = getPostThumbnail(post, firstItem, isVideo);
+		const thumbnailUrl = post.thumbnail_url || (firstItem ? firstItem.image_url : '');
 
 		if (!thumbnailUrl) {
-			return;
-		}
-
-		if (isVideo) {
-			target.insertAdjacentHTML('beforeend', `
-				<a href="detail.html?id=${post.id}" class="video-card">
-					<div class="video-thumb">
-						<img src="${escapeAttr(thumbnailUrl)}" alt="${escapeAttr(post.title || '')}">
-						<div class="play-button">▶</div>
-					</div>
-					<div class="video-info">
-						<h2 class="video-title">${escapeHtml(post.title || '')}</h2>
-						${post.caption ? `<p class="video-desc">${escapeHtml(post.caption)}</p>` : ''}
-					</div>
-				</a>
-			`);
 			return;
 		}
 
@@ -190,32 +180,30 @@ function renderArchiveList(target, posts, pageKind) {
 	});
 }
 
-function getPostThumbnail(post, firstItem, isVideo) {
-	if (post.thumbnail_url) {
-		return post.thumbnail_url;
-	}
+function renderVideoList(target, posts) {
+	target.innerHTML = '';
 
-	if (!firstItem) {
-		return '';
-	}
+	(posts || []).forEach(function(post) {
+		const firstItem = post.post_items && post.post_items.length > 0 ? post.post_items[0] : null;
+		const youtubeId = firstItem ? (firstItem.youtube_id || extractYoutubeId(firstItem.video_url)) : '';
 
-	if (!isVideo && firstItem.image_url) {
-		return firstItem.image_url;
-	}
-
-	if (isVideo && firstItem.youtube_id) {
-		return `https://img.youtube.com/vi/${firstItem.youtube_id}/maxresdefault.jpg`;
-	}
-
-	if (isVideo && firstItem.video_url) {
-		const youtubeId = extractYoutubeId(firstItem.video_url);
-
-		if (youtubeId) {
-			return `https://img.youtube.com/vi/${youtubeId}/maxresdefault.jpg`;
+		if (!youtubeId) {
+			return;
 		}
-	}
 
-	return '';
+		target.insertAdjacentHTML('beforeend', `
+			<a href="detail.html?id=${post.id}" class="video-card">
+				<div class="video-thumb">
+					<iframe class="video-embed" src="https://www.youtube.com/embed/${escapeAttr(youtubeId)}" title="${escapeAttr(post.title || 'YouTube video')}" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+					<div class="video-click-cover"></div>
+				</div>
+				<div class="video-info">
+					<h2 class="video-title">${escapeHtml(post.title || '')}</h2>
+					${post.caption ? `<p class="video-desc">${escapeHtml(post.caption)}</p>` : ''}
+				</div>
+			</a>
+		`);
+	});
 }
 
 function extractYoutubeId(url) {
