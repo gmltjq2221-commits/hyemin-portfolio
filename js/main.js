@@ -37,7 +37,6 @@ async function loadSiteProfile() {
 		return;
 	}
 
-	const heroText = document.getElementById('heroText');
 	const artistName = document.getElementById('artistName');
 	const artistTitle = document.getElementById('artistTitle');
 	const artistMessage = document.getElementById('artistMessage');
@@ -45,10 +44,6 @@ async function loadSiteProfile() {
 	const profileEmpty = document.getElementById('profileEmpty');
 	const aboutContact = document.getElementById('aboutContact');
 	const footerArtist = document.getElementById('footerArtist');
-
-	if (heroText) {
-		heroText.textContent = data.artist_title || '';
-	}
 
 	if (artistName) {
 		artistName.textContent = data.artist_name || '';
@@ -80,21 +75,15 @@ async function loadSiteProfile() {
 		aboutContact.innerHTML = '';
 
 		if (data.email) {
-			aboutContact.insertAdjacentHTML('beforeend', `
-				<a href="mailto:${escapeAttr(data.email)}">${escapeHtml(data.email)}</a>
-			`);
+			aboutContact.insertAdjacentHTML('beforeend', `<a href="mailto:${escapeAttr(data.email)}">${escapeHtml(data.email)}</a>`);
 		}
 
 		if (data.instagram_url) {
-			aboutContact.insertAdjacentHTML('beforeend', `
-				<a href="${escapeAttr(data.instagram_url)}" target="_blank" rel="noopener noreferrer">Instagram</a>
-			`);
+			aboutContact.insertAdjacentHTML('beforeend', `<a href="${escapeAttr(data.instagram_url)}" target="_blank" rel="noopener noreferrer">Instagram</a>`);
 		}
 
 		if (data.phone) {
-			aboutContact.insertAdjacentHTML('beforeend', `
-				<span>${escapeHtml(data.phone)}</span>
-			`);
+			aboutContact.insertAdjacentHTML('beforeend', `<span>${escapeHtml(data.phone)}</span>`);
 		}
 	}
 }
