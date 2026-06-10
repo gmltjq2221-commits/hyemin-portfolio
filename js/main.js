@@ -8,9 +8,11 @@ async function loadMainData() {
 	try {
 		await Promise.all([
 			loadSiteProfile(),
-			loadFeaturedImage(),
-			loadFeaturedVideo()
+			loadFeaturedPosts('FEATURED_IMAGE', 'photoSlider', false),
+			loadFeaturedPosts('FEATURED_VIDEO', 'videoSlider', true)
 		]);
+
+		startAutoSliders();
 	} catch (error) {
 		console.error('메인 데이터 로딩 오류:', error);
 	} finally {
@@ -37,105 +39,92 @@ async function loadSiteProfile() {
 		return;
 	}
 
-	const artistName = document.getElementById('artistName');
-	const artistTitle = document.getElementById('artistTitle');
-	const artistMessage = document.getElementById('artistMessage');
-	const profileImage = document.getElementById('profileImage');
-	const profileEmpty = document.getElementById('profileEmpty');
-	const aboutContact = document.getElementById('aboutContact');
-	const footerArtist = document.getElementById('footerArtist');
+	setText('artistName', data.artist_name);
+	setText('artistTitle', data.artist_title);
+	setText('artistMessage', data.artist_message);
+	setText('artistPhone', data.phone);
 
-	if (artistName) {
-		artistName.textContent = data.artist_name || '';
+	const artistEmail = document.getElementById('artistEmail');
+	const artistInstagram = document.getElementById('artistInstagram');
+
+	if (artistEmail) {
+		artistEmail.innerHTML = data.email ? `<a href="mailto:${escapeAttr(data.email)}">${escapeHtml(data.email)}</a>` : '';
 	}
 
-	if (artistTitle) {
-		artistTitle.textContent = data.artist_title || '';
-	}
-
-	if (artistMessage) {
-		artistMessage.textContent = data.artist_message || '';
-	}
-
-	if (footerArtist) {
-		footerArtist.textContent = data.artist_name || '';
-	}
-
-	if (profileImage && data.profile_image_url) {
-		profileImage.src = data.profile_image_url;
-		profileImage.alt = data.artist_name || '프로필 이미지';
-		profileImage.style.display = 'block';
-
-		if (profileEmpty) {
-			profileEmpty.style.display = 'none';
-		}
-	}
-
-	if (aboutContact) {
-		aboutContact.innerHTML = '';
-
-		if (data.email) {
-			aboutContact.insertAdjacentHTML('beforeend', `<a href="mailto:${escapeAttr(data.email)}">${escapeHtml(data.email)}</a>`);
-		}
-
-		if (data.instagram_url) {
-			aboutContact.insertAdjacentHTML('beforeend', `<a href="${escapeAttr(data.instagram_url)}" target="_blank" rel="noopener noreferrer">Instagram</a>`);
-		}
-
-		if (data.phone) {
-			aboutContact.insertAdjacentHTML('beforeend', `<span>${escapeHtml(data.phone)}</span>`);
-		}
+	if (artistInstagram) {
+		artistInstagram.innerHTML = data.instagram_url ? `<a href="${escapeAttr(data.instagram_url)}" target="_blank" rel="noopener noreferrer">Instagram</a>` : '';
 	}
 }
 
-async function loadFeaturedImage() {
-	const post = await getLatestVisiblePostByBoardCode('FEATURED_IMAGE');
+async function loadFeaturedPosts(boardCode, sliderId, isVideo) {
+	const slider = document.getElementById(sliderId);
 
-	if (!post) {
+	if (!slider) {
 		return;
 	}
 
-	renderFeaturedCard({
-		cardId: 'featuredImageCard',
-		post: post,
-		typeLabel: 'Image',
-		isVideo: false
-	});
-}
+	const board = await getBoardByCode(boardCode);
 
-async function loadFeaturedVideo() {
-	const post = await getLatestVisiblePostByBoardCode('FEATURED_VIDEO');
-
-	if (!post) {
+	if (!board) {
+		renderEmptySlider(slider);
 		return;
 	}
 
-	renderFeaturedCard({
-		cardId: 'featuredVideoCard',
-		post: post,
-		typeLabel: 'Video',
-		isVideo: true
+	const posts = await getPostsByBoardId(board.id);
+
+	if (!posts || posts.length === 0) {
+		renderEmptySlider(slider);
+		return;
+	}
+
+	slider.classList.remove('is-empty');
+	slider.innerHTML = '';
+
+	posts.forEach(function(post) {
+		const firstItem = post.post_items && post.post_items.length > 0 ? post.post_items[0] : null;
+		const thumbnailUrl = getPostThumbnail(post, firstItem, isVideo);
+
+		if (!thumbnailUrl) {
+			return;
+		}
+
+		slider.insertAdjacentHTML('beforeend', `
+			<div class="slide-card" onclick="location.href='detail.html?id=${post.id}'">
+				<div class="slide-image">
+					<img src="${escapeAttr(thumbnailUrl)}" alt="${escapeAttr(post.title || '')}">
+					${isVideo ? `<div class="play-button">▶</div>` : ''}
+					<div class="slide-info">
+						<span>${escapeHtml(post.title || '')}</span>
+						<span>${isVideo ? 'Video' : 'Photo'}</span>
+					</div>
+				</div>
+			</div>
+		`);
 	});
+
+	if (!slider.querySelector('.slide-card')) {
+		renderEmptySlider(slider);
+	}
 }
 
-async function getLatestVisiblePostByBoardCode(boardCode) {
-	const { data: board, error: boardError } = await db
+async function getBoardByCode(boardCode) {
+	const { data, error } = await db
 		.from('boards')
 		.select('id, board_code')
 		.eq('board_code', boardCode)
 		.eq('is_visible', true)
 		.maybeSingle();
 
-	if (boardError) {
-		console.error(`${boardCode} 게시판 조회 오류:`, boardError);
+	if (error) {
+		console.error(`${boardCode} 게시판 조회 오류:`, error);
 		return null;
 	}
 
-	if (!board) {
-		return null;
-	}
+	return data;
+}
 
-	const { data: post, error: postError } = await db
+async function getPostsByBoardId(boardId) {
+	const { data, error } = await db
 		.from('posts')
 		.select(`
 			id,
@@ -160,57 +149,27 @@ async function getLatestVisiblePostByBoardCode(boardCode) {
 				is_visible
 			)
 		`)
-		.eq('board_id', board.id)
+		.eq('board_id', boardId)
 		.eq('is_visible', true)
 		.order('sort_order', { ascending: true })
-		.order('created_at', { ascending: false })
-		.limit(1)
-		.maybeSingle();
+		.order('created_at', { ascending: false });
 
-	if (postError) {
-		console.error(`${boardCode} 게시글 조회 오류:`, postError);
-		return null;
+	if (error) {
+		console.error('대표 게시글 조회 오류:', error);
+		return [];
 	}
 
-	if (!post) {
-		return null;
-	}
+	return (data || []).map(function(post) {
+		post.post_items = (post.post_items || [])
+			.filter(function(item) {
+				return item.is_visible === true;
+			})
+			.sort(function(a, b) {
+				return (a.sort_order || 0) - (b.sort_order || 0);
+			});
 
-	post.post_items = (post.post_items || [])
-		.filter(function(item) {
-			return item.is_visible === true;
-		})
-		.sort(function(a, b) {
-			return (a.sort_order || 0) - (b.sort_order || 0);
-		});
-
-	return post;
-}
-
-function renderFeaturedCard(options) {
-	const card = document.getElementById(options.cardId);
-
-	if (!card || !options.post) {
-		return;
-	}
-
-	const post = options.post;
-	const firstItem = post.post_items && post.post_items.length > 0 ? post.post_items[0] : null;
-	const thumbnailUrl = getPostThumbnail(post, firstItem, options.isVideo);
-
-	card.classList.remove('is-empty');
-	card.href = `detail.html?id=${post.id}`;
-
-	card.innerHTML = `
-		${thumbnailUrl ? `<img src="${escapeAttr(thumbnailUrl)}" alt="${escapeAttr(post.title || '')}" class="feature-thumb" />` : `<div class="empty-box">썸네일이 등록되지 않았습니다.</div>`}
-		<div class="feature-dim"></div>
-		${options.isVideo ? `<span class="play-icon" aria-hidden="true"></span>` : ''}
-		<div class="feature-info">
-			<span class="feature-type">${escapeHtml(options.typeLabel)}</span>
-			<h3 class="feature-title">${escapeHtml(post.title || '')}</h3>
-			${post.caption ? `<p class="feature-caption">${escapeHtml(post.caption)}</p>` : ''}
-		</div>
-	`;
+		return post;
+	});
 }
 
 function getPostThumbnail(post, firstItem, isVideo) {
@@ -262,6 +221,19 @@ function extractYoutubeId(url) {
 	}
 
 	return '';
+}
+
+function renderEmptySlider(slider) {
+	slider.classList.add('is-empty');
+	slider.innerHTML = '';
+}
+
+function setText(id, value) {
+	const element = document.getElementById(id);
+
+	if (element) {
+		element.textContent = value || '';
+	}
 }
 
 function escapeHtml(value) {
