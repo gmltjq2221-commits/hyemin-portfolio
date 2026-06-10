@@ -61,7 +61,7 @@
 		</nav>
 	</header>
 	<main>
-		<div class="page-head"><h1 class="page-title">Admin</h1><p class="page-desc">대표작, Photography, Videography, 작가 정보를 관리합니다.</p></div>
+		<div class="page-head"><h1 class="page-title">Admin</h1><p class="page-desc">Photography, Videography, 메인 대표작, 작가 정보를 관리합니다.</p></div>
 		<section class="login-box" id="loginBox">
 			<h2 class="login-title">Login</h2>
 			<div class="message" id="loginMessage"></div>
@@ -79,7 +79,8 @@
 						<h2 class="panel-title">게시글 등록 / 수정</h2>
 						<form id="postForm">
 							<input type="hidden" id="postId">
-							<div class="form-row"><label for="boardCode">어디에 노출할까요?</label><select id="boardCode" required><option value="FEATURED_IMAGE">메인 대표 Photography</option><option value="FEATURED_VIDEO">메인 대표 Videography</option><option value="IMAGE_ARCHIVE">Photography 목록</option><option value="VIDEO_ARCHIVE">Videography 목록</option></select><p class="form-help" id="boardHelp"></p></div>
+							<div class="form-row"><label for="boardCode">게시판</label><select id="boardCode" required><option value="IMAGE_ARCHIVE">Photography</option><option value="VIDEO_ARCHIVE">Videography</option></select><p class="form-help" id="boardHelp"></p></div>
+							<div class="form-row"><label for="isFeatured">메인 대표작 노출</label><select id="isFeatured"><option value="false">일반 게시글</option><option value="true">메인 대표작으로 노출</option></select><p class="form-help">체크하면 메인 화면 대표 Photography / Videography 영역에 표시됩니다.</p></div>
 							<div class="form-row"><label for="categoryCode">카테고리</label><select id="categoryCode"><option value="performance">Performance</option><option value="exhibition">Exhibition</option><option value="festival-event">Festival / Event</option><option value="interview">Interview</option></select></div>
 							<div class="form-row"><label for="postTitle">제목</label><input type="text" id="postTitle" required></div>
 							<div class="form-row"><label for="postCaption">짧은 설명</label><input type="text" id="postCaption"></div>
@@ -111,10 +112,10 @@
 				<div>
 					<section class="panel">
 						<h2 class="panel-title">게시글 목록</h2>
-						<div class="form-row"><label for="filterBoardCode">게시판 필터</label><select id="filterBoardCode"><option value="">전체</option><option value="FEATURED_IMAGE">메인 대표 Photography</option><option value="FEATURED_VIDEO">메인 대표 Videography</option><option value="IMAGE_ARCHIVE">Photography 목록</option><option value="VIDEO_ARCHIVE">Videography 목록</option></select></div>
+						<div class="form-row"><label for="filterBoardCode">게시판 필터</label><select id="filterBoardCode"><option value="">전체</option><option value="IMAGE_ARCHIVE">Photography</option><option value="VIDEO_ARCHIVE">Videography</option></select></div>
 						<div class="list" id="postList"></div>
 					</section>
-					<section class="panel"><h2 class="panel-title">입력 안내</h2><div class="guide-box">대표 Videography는 썸네일을 사용하지 않습니다. 유튜브 URL만 입력하면 메인 화면에서 영상이 바로 보이고, 클릭 시 상세 페이지로 이동합니다.</div></section>
+					<section class="panel"><h2 class="panel-title">입력 안내</h2><div class="guide-box">게시판은 Photography / Videography만 사용합니다. 메인 대표작 노출을 선택하면 메인 화면 대표 영역에도 표시됩니다. Videography는 썸네일을 사용하지 않고 영상이 바로 보입니다.</div></section>
 				</div>
 			</div>
 		</section>
