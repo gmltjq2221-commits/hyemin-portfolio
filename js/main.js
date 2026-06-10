@@ -8,8 +8,8 @@ async function loadMainData() {
 	try {
 		await Promise.all([
 			loadSiteProfile(),
-			loadFeaturedPosts('FEATURED_IMAGE', 'photoSlider', false),
-			loadFeaturedPosts('FEATURED_VIDEO', 'videoSlider', true)
+			loadFeaturedPosts('IMAGE_ARCHIVE', 'photoSlider', false),
+			loadFeaturedPosts('VIDEO_ARCHIVE', 'videoSlider', true)
 		]);
 
 		startAutoSliders();
@@ -166,6 +166,7 @@ async function getPostsByBoardId(boardId) {
 			is_visible,
 			category_code,
 			created_at,
+			is_featured,
 			post_items (
 				id,
 				item_type,
@@ -180,6 +181,7 @@ async function getPostsByBoardId(boardId) {
 		`)
 		.eq('board_id', boardId)
 		.eq('is_visible', true)
+		.eq('is_featured', true)
 		.order('sort_order', { ascending: true })
 		.order('created_at', { ascending: false });
 
