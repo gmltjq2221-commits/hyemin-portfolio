@@ -34,27 +34,35 @@
 		.section-title { font-size: clamp(44px, 7vw, 96px); font-weight: 500; letter-spacing: -0.07em; line-height: 0.95; }
 		.archive-head { display: flex; align-items: end; justify-content: space-between; gap: 24px; margin-bottom: 44px; }
 		.archive-desc { max-width: 460px; color: #cfcfcf; font-size: 15px; line-height: 1.8; word-break: keep-all; }
-		.video-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; }
-		.video-card { display: block; border: 1px solid var(--line-dark); background: #111111; color: var(--white); transition: 0.2s ease; }
-		.video-card:hover { border-color: var(--white); }
-		.video-thumb { position: relative; aspect-ratio: 16 / 9; overflow: hidden; background: #000000; }
-		.video-thumb img { opacity: 0.86; transition: 0.25s ease; }
-		.video-card:hover .video-thumb img { opacity: 0.64; transform: scale(1.035); }
-		.play-button { position: absolute; left: 50%; top: 50%; z-index: 2; display: flex; align-items: center; justify-content: center; width: 62px; height: 62px; border: 1px solid var(--white); border-radius: 50%; background: rgba(0, 0, 0, 0.68); color: var(--white); font-size: 22px; transform: translate(-50%, -50%); }
-		.video-info { padding: 16px; }
-		.video-title { font-size: 16px; font-weight: 800; line-height: 1.5; word-break: keep-all; }
-		.video-desc { margin-top: 6px; color: #b5b5b5; font-size: 13px; line-height: 1.55; }
+		.video-project-list { display: grid; gap: 34px; }
+		.video-project-row { display: grid; grid-template-columns: 280px 1fr; gap: 22px; padding: 22px; border: 1px solid var(--line-dark); background: #101010; }
+		.video-project-info { display: flex; flex-direction: column; justify-content: flex-end; min-height: 190px; padding: 20px; background: #000000; }
+		.video-project-kicker { margin-bottom: 10px; color: #a8a8a8; font-size: 11px; font-weight: 800; letter-spacing: 0.18em; text-transform: uppercase; }
+		.video-project-title { font-size: 26px; font-weight: 800; line-height: 1.25; letter-spacing: -0.04em; word-break: keep-all; }
+		.video-project-caption { margin-top: 10px; color: #b5b5b5; font-size: 13px; line-height: 1.55; word-break: keep-all; }
+		.video-strip { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; align-content: start; }
+		.video-thumb-button { display: block; width: 100%; border: 1px solid var(--line-dark); background: #171717; color: var(--white); text-align: left; cursor: pointer; transition: 0.2s ease; }
+		.video-thumb-button:hover { border-color: var(--white); }
+		.video-thumb-image { position: relative; display: block; aspect-ratio: 16 / 9; overflow: hidden; background: #000000; }
+		.video-thumb-image img { opacity: 0.84; transition: 0.25s ease; }
+		.video-thumb-button:hover img { opacity: 0.58; transform: scale(1.04); }
+		.play-button { position: absolute; left: 50%; top: 50%; z-index: 2; display: flex; align-items: center; justify-content: center; width: 58px; height: 58px; border: 1px solid var(--white); border-radius: 50%; background: rgba(0, 0, 0, 0.68); color: var(--white); font-size: 18px; transform: translate(-50%, -50%); }
+		.video-thumb-title { display: block; padding: 13px 14px; color: #ffffff; font-size: 14px; font-weight: 800; line-height: 1.45; word-break: keep-all; }
+		.empty-message { padding: 80px 0; color: #a8a8a8; font-size: 15px; text-align: center; }
 		footer { padding: 34px 48px; border-top: 1px solid var(--line-dark); text-align: center; color: #a8a8a8; font-size: 13px; }
 		.loading { position: fixed; left: 50%; bottom: 28px; z-index: 200; transform: translateX(-50%); padding: 12px 18px; border-radius: 999px; background: rgba(255, 255, 255, 0.12); color: rgba(255, 255, 255, 0.78); font-size: 13px; backdrop-filter: blur(8px); }
 		.loading.hide { display: none; }
-		.video-click-card { cursor: pointer; }
-		.video-click-card .slide-image { position: relative; }
-		.video-click-cover { position: absolute; inset: 0; z-index: 3; background: transparent; cursor: pointer; }
-		.video-click-card .slide-info { z-index: 4; }
-		.video-embed { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; background: #000000; }
+		body.modal-open { overflow: hidden; }
+		.video-modal { position: fixed; inset: 0; z-index: 500; display: none; align-items: center; justify-content: center; padding: 34px; }
+		.video-modal.open { display: flex; }
+		.video-modal-bg { position: absolute; inset: 0; background: rgba(0, 0, 0, 0.82); backdrop-filter: blur(8px); }
+		.video-modal-panel { position: relative; z-index: 2; width: min(1120px, 94vw); }
+		.video-modal-close { position: absolute; right: 0; top: -54px; width: 42px; height: 42px; border: 1px solid rgba(255, 255, 255, 0.6); background: rgba(0, 0, 0, 0.5); color: var(--white); font-size: 30px; line-height: 1; cursor: pointer; }
+		.video-modal-frame { position: relative; width: 100%; aspect-ratio: 16 / 9; background: #000000; box-shadow: 0 24px 80px rgba(0, 0, 0, 0.45); }
+		.video-modal-frame iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
 
-		@media (max-width: 860px) { :root { --header-h: auto; } header { position: sticky; } .nav { height: auto; align-items: stretch; flex-direction: column; gap: 0; padding: 14px 20px; } .nav-head { width: 100%; } .mobile-menu-btn { display: inline-flex; } .menu { display: none; grid-template-columns: 1fr; gap: 8px; width: 100%; margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--line); } .menu.open { display: grid; } .menu-link { justify-content: space-between; width: 100%; min-height: 46px; padding: 0 16px; border-color: var(--line); font-size: 14px; } main { padding-top: 0; } .section { padding: 76px 22px; } .archive-head { align-items: flex-start; flex-direction: column; } .video-grid { grid-template-columns: repeat(2, 1fr); gap: 8px; } }
-		@media (max-width: 560px) { .logo { font-size: 16px; } .section { padding: 64px 18px; } .section-title { font-size: clamp(42px, 16vw, 64px); } .video-info { padding: 12px; } .video-title { font-size: 14px; } .video-desc { font-size: 12px; } footer { padding: 28px 18px; } }
+		@media (max-width: 860px) { :root { --header-h: auto; } header { position: sticky; } .nav { height: auto; align-items: stretch; flex-direction: column; gap: 0; padding: 14px 20px; } .nav-head { width: 100%; } .mobile-menu-btn { display: inline-flex; } .menu { display: none; grid-template-columns: 1fr; gap: 8px; width: 100%; margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--line); } .menu.open { display: grid; } .menu-link { justify-content: space-between; width: 100%; min-height: 46px; padding: 0 16px; border-color: var(--line); font-size: 14px; } main { padding-top: 0; } .section { padding: 76px 22px; } .archive-head { align-items: flex-start; flex-direction: column; }  .video-project-row { grid-template-columns: 1fr; padding: 14px; } .video-project-info { min-height: auto; } .video-strip { grid-template-columns: repeat(2, 1fr); gap: 8px; } }
+		@media (max-width: 560px) { .logo { font-size: 16px; } .section { padding: 64px 18px; } .section-title { font-size: clamp(42px, 16vw, 64px); } .video-strip { grid-template-columns: 1fr; } .video-modal { padding: 18px; } footer { padding: 28px 18px; } }
 	</style>
 </head>
 <body data-board-code="VIDEO_ARCHIVE" data-page-kind="video">
@@ -78,7 +86,7 @@
 				<div><p class="kicker">Videography</p><h1 class="section-title">Project<br>Films</h1></div>
 				<!--<p class="archive-desc">Videography 작업 목록입니다.</p>-->
 			</div>
-			<div id="archiveList" class="video-grid"></div>
+			<div id="archiveList" class="video-project-list"></div>
 		</section>
 	</main>
 	<footer>© <span id="year"></span> HHM FILM. All rights reserved.</footer>
