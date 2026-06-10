@@ -86,6 +86,7 @@ async function loadArchiveData() {
 
 		if (pageKind === 'video') {
 			renderVideoList(archiveList, posts);
+			moveToSelectedVideo();
 		} else {
 			renderImageList(archiveList, posts);
 		}
@@ -264,7 +265,7 @@ function getVideoProjectHtml(post) {
 	const videoItems = getVideoItems(post);
 
 	return `
-		<article class="video-project-row">
+		<article class="video-project-row" id="video-post-${escapeAttr(post.id)}" data-post-id="${escapeAttr(post.id)}">
 			<div class="video-project-info">
 				<p class="video-project-kicker">Project Films</p>
 				<h2 class="video-project-title">${escapeHtml(post.title || '')}</h2>
@@ -277,7 +278,7 @@ function getVideoProjectHtml(post) {
 					const title = item.caption || post.title || 'YouTube video';
 
 					return `
-						<button type="button" class="video-thumb-button" data-youtube-id="${escapeAttr(youtubeId)}" data-video-title="${escapeAttr(title)}">
+						<button type="button" id="video-item-${escapeAttr(youtubeId)}" class="video-thumb-button" data-post-id="${escapeAttr(post.id)}" data-youtube-id="${escapeAttr(youtubeId)}" data-video-title="${escapeAttr(title)}">
 							<span class="video-thumb-image">
 								<img src="https://img.youtube.com/vi/${escapeAttr(youtubeId)}/hqdefault.jpg" alt="${escapeAttr(title)}">
 								<span class="play-button">▶</span>
@@ -303,6 +304,44 @@ function bindVideoButtons() {
 			openVideoModal(this.dataset.youtubeId, this.dataset.videoTitle);
 		});
 	});
+}
+
+function moveToSelectedVideo() {
+	const params = new URLSearchParams(window.location.search);
+	const postId = params.get('post');
+	const youtubeId = params.get('video');
+
+	if (!postId && !youtubeId) {
+		return;
+	}
+
+	setTimeout(function() {
+		let target = null;
+
+		if (youtubeId) {
+			target = document.getElementById(`video-item-${CSS.escape(youtubeId)}`);
+		}
+
+		if (!target && postId) {
+			target = document.getElementById(`video-post-${CSS.escape(postId)}`);
+		}
+
+		if (!target) {
+			return;
+		}
+
+		target.scrollIntoView({
+			behavior: 'smooth',
+			block: 'center',
+			inline: 'center'
+		});
+
+		target.classList.add('is-selected-video');
+
+		setTimeout(function() {
+			target.classList.remove('is-selected-video');
+		}, 1800);
+	}, 250);
 }
 
 function initVideoModal() {
