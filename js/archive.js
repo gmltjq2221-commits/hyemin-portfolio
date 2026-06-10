@@ -204,61 +204,41 @@ function getImageProjectHtml(post) {
 		return item.item_type !== 'video' && item.image_url;
 	});
 
-	let thumbnailItems = imageItems.length > 0 ? imageItems : getFallbackImageItems(post);
+	const thumbnailItem = getRepresentativeImageItem(post, imageItems);
 
-	thumbnailItems = getLimitedImageItems(thumbnailItems);
-
-	if (thumbnailItems.length === 0) {
+	if (!thumbnailItem) {
 		return '';
 	}
 
 	return `
-		<article class="photo-project">
-			<a href="detail.html?id=${encodeURIComponent(post.id)}" class="photo-project-title-link">
-				<h3 class="photo-project-title">${escapeHtml(post.title || '')}</h3>
-				${post.caption ? `<p class="photo-project-caption">${escapeHtml(post.caption)}</p>` : ''}
-			</a>
+		<article class="photo-card">
+			<a href="detail.html?id=${encodeURIComponent(post.id)}" class="photo-card-link">
+				<div class="photo-card-image">
+					<img src="${escapeAttr(thumbnailItem.image_url)}" alt="${escapeAttr(thumbnailItem.caption || post.title || '')}">
+				</div>
 
-			<div class="photo-strip">
-				${thumbnailItems.map(function(item) {
-					return `
-						<a href="detail.html?id=${encodeURIComponent(post.id)}" class="photo-thumb" aria-label="${escapeAttr(post.title || '')} 상세보기">
-							<img src="${escapeAttr(item.image_url)}" alt="${escapeAttr(item.caption || post.title || '')}">
-						</a>
-					`;
-				}).join('')}
-			</div>
+				<div class="photo-card-info">
+					<h3 class="photo-card-title">${escapeHtml(post.title || '')}</h3>
+					${post.caption ? `<p class="photo-card-caption">${escapeHtml(post.caption)}</p>` : ''}
+				</div>
+			</a>
 		</article>
 	`;
 }
 
-function getLimitedImageItems(items) {
-	const count = items.length;
-
-	if (count >= 12) {
-		return items.slice(0, 12);
+function getRepresentativeImageItem(post, imageItems) {
+	if (post.thumbnail_url) {
+		return {
+			image_url: post.thumbnail_url,
+			caption: post.title || ''
+		};
 	}
 
-	if (count >= 8) {
-		return items.slice(0, 8);
+	if (imageItems.length > 0) {
+		return imageItems[0];
 	}
 
-	if (count >= 4) {
-		return items.slice(0, 4);
-	}
-
-	return items;
-}
-
-function getFallbackImageItems(post) {
-	if (!post.thumbnail_url) {
-		return [];
-	}
-
-	return [{
-		image_url: post.thumbnail_url,
-		caption: post.title || ''
-	}];
+	return null;
 }
 
 function renderVideoList(target, posts) {
