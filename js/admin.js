@@ -150,6 +150,7 @@ async function loadPosts() {
 			thumbnail_url,
 			sort_order,
 			is_visible,
+			is_featured,
 			category_code,
 			created_at,
 			updated_at,
@@ -191,7 +192,7 @@ function getPostCardHtml(post) {
 		<article class="post-card" data-post-id="${post.id}">
 			<h3 class="post-title">${escapeHtml(post.title || '')}</h3>
 			<p class="post-meta">${escapeHtml(boardName)} / ${escapeHtml(categoryName)} / 항목 ${itemCount}개</p>
-			<p class="post-meta">ID ${post.id} / ${escapeHtml(boardCode)} / 정렬 ${post.sort_order || 0} / ${post.is_visible ? '노출' : '숨김'}</p>
+			<p class="post-meta">ID ${post.id} / ${escapeHtml(boardCode)} / 정렬 ${post.sort_order || 0} / ${post.is_visible ? '노출' : '숨김'} / ${post.is_featured ? '메인 대표' : '일반'}</p>
 			<div class="post-actions">
 				<button type="button" class="small-btn edit-post-btn" data-post-id="${post.id}">수정</button>
 				<a href="detail.html?id=${post.id}" target="_blank" class="small-btn">보기</a>
@@ -229,6 +230,7 @@ async function loadPostForEdit(postId) {
 			thumbnail_url,
 			sort_order,
 			is_visible,
+			is_featured,
 			category_code,
 			boards ( id, board_code, board_name ),
 			post_items ( id, item_type, image_url, video_url, youtube_id, caption, description, sort_order, is_visible )
@@ -257,6 +259,7 @@ async function loadPostForEdit(postId) {
 	setValue('thumbnailUrl', data.thumbnail_url || '');
 	setValue('sortOrder', data.sort_order || 0);
 	setValue('isVisible', String(data.is_visible === true));
+	setValue('isFeatured', String(data.is_featured === true));
 	setValue('itemUrls', items.map(function(item) { return item.item_type === 'video' ? item.video_url || '' : item.image_url || ''; }).join('\n'));
 	setValue('itemCaptions', items.map(function(item) { return item.caption || ''; }).join('\n'));
 	setValue('itemDescriptions', items.map(function(item) { return item.description || ''; }).join('\n'));
@@ -276,16 +279,17 @@ async function handleSavePost(event) {
 		return;
 	}
 
-	const isFeaturedVideo = boardCode === 'FEATURED_VIDEO';
+	const isVideoBoard = boardCode === 'VIDEO_ARCHIVE';
 
 	const payload = {
 		board_id: board.id,
 		title: getValue('postTitle'),
 		caption: getValue('postCaption') || null,
 		description: getValue('postDescription') || null,
-		thumbnail_url: isFeaturedVideo ? null : (getValue('thumbnailUrl') || null),
+		thumbnail_url: isVideoBoard ? null : (getValue('thumbnailUrl') || null),
 		sort_order: Number(getValue('sortOrder') || 0),
 		is_visible: getValue('isVisible') === 'true',
+		is_featured: getValue('isFeatured') === 'true',
 		category_code: getValue('categoryCode'),
 		updated_at: new Date().toISOString()
 	};
@@ -345,7 +349,7 @@ async function insertPostItems(postId, boardCode) {
 
 	if (urls.length === 0) { return; }
 
-	const isVideoBoard = boardCode === 'FEATURED_VIDEO' || boardCode === 'VIDEO_ARCHIVE';
+	const isVideoBoard = boardCode === 'VIDEO_ARCHIVE';
 	const items = urls.map(function(url, index) {
 		const isYoutube = isYoutubeUrl(url);
 		const itemType = isVideoBoard || isYoutube ? 'video' : 'image';
@@ -399,6 +403,7 @@ function resetPostForm() {
 	setValue('categoryCode', 'performance');
 	setValue('sortOrder', 0);
 	setValue('isVisible', 'true');
+	setValue('isFeatured', 'false');
 	updatePostFormGuide();
 }
 
@@ -488,39 +493,41 @@ function updatePostFormGuide() {
 	}
 
 	const value = boardCode.value;
-	const isFeaturedImage = value === 'FEATURED_IMAGE';
-	const isFeaturedVideo = value === 'FEATURED_VIDEO';
 	const isImageArchive = value === 'IMAGE_ARCHIVE';
 	const isVideoArchive = value === 'VIDEO_ARCHIVE';
-	const isVideo = isFeaturedVideo || isVideoArchive;
 
 	if (boardHelp) {
-		if (isFeaturedImage) { boardHelp.textContent = '메인 화면의 Photography 대표작 영역에 노출됩니다.'; }
-		if (isFeaturedVideo) { boardHelp.textContent = '메인 화면의 Videography 대표작 영역에 노출됩니다. 썸네일 없이 영상이 바로 표시됩니다.'; }
-		if (isImageArchive) { boardHelp.textContent = 'Photography 메뉴의 목록 페이지에 노출됩니다.'; }
-		if (isVideoArchive) { boardHelp.textContent = 'Videography 메뉴의 목록 페이지에 노출됩니다.'; }
+		if (isImageArchive) {
+			boardHelp.textContent = 'Photography 목록에 등록됩니다. 메인 대표작 노출을 선택하면 메인 대표 Photography에도 표시됩니다.';
+		}
+
+		if (isVideoArchive) {
+			boardHelp.textContent = 'Videography 목록에 등록됩니다. 메인 대표작 노출을 선택하면 메인 대표 Videography에도 표시됩니다.';
+		}
 	}
 
 	if (thumbnailRow) {
-		if (isFeaturedVideo) {
+		if (isVideoArchive) {
 			thumbnailRow.style.display = 'none';
-			if (thumbnailUrl) { thumbnailUrl.value = ''; }
+
+			if (thumbnailUrl) {
+				thumbnailUrl.value = '';
+			}
 		} else {
 			thumbnailRow.style.display = 'block';
 		}
 	}
 
-	if (thumbnailHelp) {
-		if (isFeaturedImage || isImageArchive) { thumbnailHelp.textContent = '비워두면 첫 번째 이미지 URL을 사용합니다.'; }
-		if (isVideoArchive) { thumbnailHelp.textContent = 'Videography 목록용 썸네일입니다. 비워두면 영상이 바로 표시됩니다.'; }
+	if (thumbnailHelp && isImageArchive) {
+		thumbnailHelp.textContent = '비워두면 첫 번째 이미지 URL을 사용합니다.';
 	}
 
 	if (itemUrlsLabel) {
-		itemUrlsLabel.textContent = isVideo ? '유튜브 URL' : '이미지 URL';
+		itemUrlsLabel.textContent = isVideoArchive ? '유튜브 URL' : '이미지 URL';
 	}
 
 	if (itemUrlsHelp) {
-		itemUrlsHelp.textContent = isVideo ? '유튜브 링크를 한 줄에 하나씩 입력하세요.' : '이미지 URL을 한 줄에 하나씩 입력하세요.';
+		itemUrlsHelp.textContent = isVideoArchive ? '유튜브 링크를 한 줄에 하나씩 입력하세요. 썸네일 없이 영상이 바로 보입니다.' : '이미지 URL을 한 줄에 하나씩 입력하세요.';
 	}
 }
 
