@@ -66,45 +66,88 @@ async function loadFeaturedPosts(boardCode, sliderId, isVideo) {
 	const board = await getBoardByCode(boardCode);
 
 	if (!board) {
-		renderEmptySlider(slider);
+		slider.innerHTML = '';
 		return;
 	}
 
 	const posts = await getPostsByBoardId(board.id);
 
 	if (!posts || posts.length === 0) {
-		renderEmptySlider(slider);
+		slider.innerHTML = '';
 		return;
 	}
 
-	slider.classList.remove('is-empty');
 	slider.innerHTML = '';
 
 	posts.forEach(function(post) {
-		const firstItem = post.post_items && post.post_items.length > 0 ? post.post_items[0] : null;
-		const thumbnailUrl = getPostThumbnail(post, firstItem, isVideo);
+		if (isVideo) {
+			const videoHtml = renderVideoSlide(post);
 
-		if (!thumbnailUrl) {
+			if (videoHtml) {
+				slider.insertAdjacentHTML('beforeend', videoHtml);
+			}
+
 			return;
 		}
 
-		slider.insertAdjacentHTML('beforeend', `
-			<div class="slide-card" onclick="location.href='detail.html?id=${post.id}'">
-				<div class="slide-image">
-					<img src="${escapeAttr(thumbnailUrl)}" alt="${escapeAttr(post.title || '')}">
-					${isVideo ? `<div class="play-button">▶</div>` : ''}
-					<div class="slide-info">
-						<span>${escapeHtml(post.title || '')}</span>
-						<span>${isVideo ? 'Video' : 'Photo'}</span>
-					</div>
+		const imageHtml = renderImageSlide(post);
+
+		if (imageHtml) {
+			slider.insertAdjacentHTML('beforeend', imageHtml);
+		}
+	});
+}
+
+function renderImageSlide(post) {
+	const firstItem = post.post_items && post.post_items.length > 0 ? post.post_items[0] : null;
+	const thumbnailUrl = getPostThumbnail(post, firstItem, false);
+
+	if (!thumbnailUrl) {
+		return '';
+	}
+
+	return `
+		<div class="slide-card" onclick="location.href='detail.html?id=${post.id}'">
+			<div class="slide-image">
+				<img src="${escapeAttr(thumbnailUrl)}" alt="${escapeAttr(post.title || '')}">
+				<div class="slide-info">
+					<span>${escapeHtml(post.title || '')}</span>
+					<span>Photo</span>
 				</div>
 			</div>
-		`);
-	});
+		</div>
+	`;
+}
 
-	if (!slider.querySelector('.slide-card')) {
-		renderEmptySlider(slider);
+function renderVideoSlide(post) {
+	const firstItem = post.post_items && post.post_items.length > 0 ? post.post_items[0] : null;
+	const youtubeId = firstItem ? (firstItem.youtube_id || extractYoutubeId(firstItem.video_url)) : '';
+
+	if (!youtubeId) {
+		return '';
 	}
+
+	return `
+		<div class="slide-card video-click-card" onclick="location.href='detail.html?id=${post.id}'">
+			<div class="slide-image">
+				<iframe
+					class="video-embed"
+					src="https://www.youtube.com/embed/${escapeAttr(youtubeId)}"
+					title="${escapeAttr(post.title || 'YouTube video')}"
+					allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+					referrerpolicy="strict-origin-when-cross-origin"
+					allowfullscreen>
+				</iframe>
+
+				<div class="video-click-cover"></div>
+
+				<div class="slide-info">
+					<span>${escapeHtml(post.title || '')}</span>
+					<span>Video</span>
+				</div>
+			</div>
+		</div>
+	`;
 }
 
 async function getBoardByCode(boardCode) {
@@ -221,11 +264,6 @@ function extractYoutubeId(url) {
 	}
 
 	return '';
-}
-
-function renderEmptySlider(slider) {
-	slider.classList.add('is-empty');
-	slider.innerHTML = '';
 }
 
 function setText(id, value) {
