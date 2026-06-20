@@ -65,7 +65,7 @@ async function loadDetailData() {
 	}
 
 	try {
-		const post = await getPostDetail(postId);
+		const post = getCachedPost(postId) || await getPostDetail(postId);
 
 		if (!post) {
 			return;
@@ -84,6 +84,25 @@ async function loadDetailData() {
 function getPostId() {
 	const params = new URLSearchParams(window.location.search);
 	return params.get('id') || '';
+}
+
+function getCachedPost(postId) {
+	try {
+		const rawPost = sessionStorage.getItem(`hhm-detail-${postId}`);
+		if (!rawPost) {
+			return null;
+		}
+
+		sessionStorage.removeItem(`hhm-detail-${postId}`);
+		const post = JSON.parse(rawPost);
+		post.post_items = (post.post_items || [])
+			.filter(function(item) { return item.is_visible === true; })
+			.sort(function(a, b) { return (a.sort_order || 0) - (b.sort_order || 0); });
+		return post;
+	} catch (error) {
+		console.warn('상세 데이터 임시 불러오기 오류:', error);
+		return null;
+	}
 }
 
 async function getPostDetail(postId) {
@@ -229,13 +248,13 @@ function setBackLink(post) {
 	}
 
 	if (post.boards.board_code === 'IMAGE_ARCHIVE') {
-		backLink.href = 'images.html';
+		backLink.href = 'index.html#photography';
 		backLink.textContent = '← Image';
 		return;
 	}
 
 	if (post.boards.board_code === 'VIDEO_ARCHIVE') {
-		backLink.href = 'videos.html';
+		backLink.href = 'index.html#videography';
 		backLink.textContent = '← Video';
 		return;
 	}

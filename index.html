@@ -4,241 +4,92 @@
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<title>HHM Film Portfolio</title>
-
-	<style>
-		@font-face { font-family: "Elice DX Neolli"; src: url("fonts/EliceDXNeolli-Light.ttf") format("truetype"); font-weight: 300; font-style: normal; font-display: swap; }
-		@font-face { font-family: "Elice DX Neolli"; src: url("fonts/EliceDXNeolli-Medium.ttf") format("truetype"); font-weight: 500; font-style: normal; font-display: swap; }
-		@font-face { font-family: "Elice DX Neolli"; src: url("fonts/EliceDXNeolli-Bold.ttf") format("truetype"); font-weight: 800; font-style: normal; font-display: swap; }
-		:root { --white: #ffffff; --black: #080808; --text: #111111; --muted: #767676; --line: #dedede; --line-dark: #242424; --soft: #f5f5f5; --header-h: 82px; }
-		* { box-sizing: border-box; margin: 0; padding: 0; }
-		html { scroll-behavior: smooth; scroll-snap-type: y proximity; }
-		body { font-family: "Elice DX Neolli", Arial, "Noto Sans KR", sans-serif; color: var(--text); background: var(--white); overflow-x: hidden; }
-		a { color: inherit; text-decoration: none; }
-		img { display: block; width: 100%; height: 100%; object-fit: cover; }
-		button { font-family: inherit; }
-		header { position: fixed; top: 0; left: 0; z-index: 100; width: 100%; background: rgba(255, 255, 255, 0.94); border-bottom: 1px solid var(--line); backdrop-filter: blur(14px); }
-		.nav { display: flex; align-items: center; justify-content: space-between; max-width: 1440px; height: var(--header-h); margin: 0 auto; padding: 0 48px; }
-		.logo { font-size: 18px; font-weight: 800; letter-spacing: 0.08em; }
-		.logo span { display: block; margin-top: 4px; font-size: 10px; font-weight: 500; color: var(--muted); letter-spacing: 0.22em; }
-		.nav-head { display: flex; align-items: center; justify-content: space-between; }
-		.mobile-menu-btn { display: none; align-items: center; justify-content: center; flex-direction: column; gap: 5px; width: 44px; height: 44px; border: 1px solid var(--black); background: var(--white); cursor: pointer; }
-		.mobile-menu-btn span { display: block; width: 18px; height: 2px; background: var(--black); transition: 0.2s ease; }
-		.mobile-menu-btn.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
-		.mobile-menu-btn.open span:nth-child(2) { opacity: 0; }
-		.mobile-menu-btn.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
-		.menu { display: flex; align-items: center; gap: 8px; }
-		.menu-link { display: inline-flex; align-items: center; justify-content: center; min-height: 38px; padding: 0 15px; border: 1px solid transparent; background: transparent; color: var(--text); font-size: 13px; font-weight: 700; letter-spacing: 0.04em; cursor: pointer; transition: 0.2s ease; }
-		.menu-link:hover, .menu-link.active { border-color: var(--black); background: var(--black); color: var(--white); }
-		main { padding-top: var(--header-h); }
-		.snap-section { scroll-snap-align: start; scroll-margin-top: var(--header-h); min-height: calc(100vh - var(--header-h)); scroll-snap-stop: always; }
-		.section { max-width: 1440px; margin: 0 auto; padding: 48px 48px; }
-		.kicker { margin-bottom: 14px; font-size: 12px; font-weight: 800; color: var(--muted); letter-spacing: 0.2em; text-transform: uppercase; }
-		.section-title { font-size: clamp(44px, 7vw, 96px); font-weight: 500; letter-spacing: -0.07em; line-height: 0.95; }
-		.featured { min-height: calc(100vh - var(--header-h)); display: flex; flex-direction: column; justify-content: center; border-bottom: 1px solid var(--line); }
-		.featured-grid { display: flex; flex-direction: column; gap: 28px; width: 100%; }
-		.featured-block { border: 1px solid var(--black); background: var(--white); }
-		.featured-block.black { background: var(--black); color: var(--white); }
-		.featured-block .slider-wrap { position: relative; }
-		.featured-block:not(.black) .slide-image { aspect-ratio: 16 / 9; }
-		.featured-block.black .slide-image { aspect-ratio: 16 / 9; }
-		.featured-block .slide-card { flex: 0 0 calc(50% - 10px); min-width: 420px; }
-		.featured-block .slider { gap: 20px; padding: 22px; }
-		.block-label { display: flex; align-items: center; justify-content: space-between; padding: 22px 24px; border-bottom: 1px solid currentColor; font-size: 16px; font-weight: 800; letter-spacing: 0.04em; }
-		.slider-wrap { position: relative; }
-		.slider { display: flex; gap: 14px; overflow-x: auto; scroll-behavior: smooth; scroll-snap-type: x mandatory; padding: 14px; scrollbar-width: none; }
-		.slider::-webkit-scrollbar { display: none; }
-		.slider.is-empty { min-height: 0; padding: 0; }
-		.slide-card { position: relative; flex: 0 0 calc(50% - 7px); min-width: 260px; scroll-snap-align: start; background: var(--soft); cursor: pointer; }
-		.slide-image { position: relative; aspect-ratio: 4 / 3; overflow: hidden; }
-		.slide-image img { transition: 0.25s ease; }
-		.slide-card:hover .slide-image img { opacity: 0.76; transform: scale(1.035); }
-		.featured-block.black .slide-card { background: #171717; }
-		.slide-info { position: absolute; left: 0; right: 0; bottom: 0; display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 14px; background: rgba(255, 255, 255, 0.9); color: var(--black); font-size: 13px; font-weight: 800; }
-		.featured-block.black .slide-info { background: rgba(0, 0, 0, 0.78); color: var(--white); }
-		.slider-btn { position: absolute; top: 50%; z-index: 100; width: 42px; height: 42px; border: 1px solid var(--black); border-radius: 50%; background: var(--white); color: var(--black); font-size: 24px; cursor: pointer; transform: translateY(-50%); transition: 0.2s ease; }
-		.slider-btn:hover { background: var(--black); color: var(--white); }
-		.featured-block.black .slider-btn { border-color: var(--white); background: var(--black); color: var(--white); }
-		.featured-block.black .slider-btn:hover { background: var(--white); color: var(--black); }
-		.slider-btn.prev { left: 10px; }
-		.slider-btn.next { right: 10px; }
-		.play-button { position: absolute; left: 50%; top: 50%; z-index: 2; display: flex; align-items: center; justify-content: center; width: 62px; height: 62px; border: 1px solid var(--white); border-radius: 50%; background: rgba(0, 0, 0, 0.68); color: var(--white); font-size: 22px; transform: translate(-50%, -50%); }
-		.about-wrap { display: grid; grid-template-columns: minmax(0, 0.9fr) minmax(300px, 0.45fr); gap: 48px; align-items: start; margin-top: 42px; }
-		.about-text { max-width: 760px; font-size: 18px; line-height: 1.9; color: #333333; word-break: keep-all; }
-		.about-text h3 { margin-bottom: 18px; font-size: clamp(28px, 3vw, 44px); font-weight: 500; letter-spacing: -0.045em; }
-		.about-text p + p { margin-top: 16px; }
-		.about-info { border: 1px solid var(--black); background: var(--black); color: var(--white); }
-		.info-row { display: flex; justify-content: space-between; gap: 16px; padding: 18px; border-bottom: 1px solid var(--line-dark); font-size: 14px; }
-		.info-row:last-child { border-bottom: 0; }
-		.info-row strong { color: #a8a8a8; font-weight: 700; }
-		.info-row span { text-align: right; font-weight: 800; word-break: break-all; }
-		.info-row a { color: inherit; text-decoration: underline; text-underline-offset: 4px; }
-		.info-row a:hover { color: #cfcfcf; }
-		footer { padding: 34px 48px; border-top: 1px solid var(--line); text-align: center; color: var(--muted); font-size: 13px; }
-		.loading { position: fixed; left: 50%; bottom: 28px; z-index: 200; transform: translateX(-50%); padding: 12px 18px; border-radius: 999px; background: rgba(0, 0, 0, 0.78); color: rgba(255, 255, 255, 0.78); font-size: 13px; backdrop-filter: blur(8px); }
-		.loading.hide { display: none; }
-		.video-click-card { cursor: pointer; }
-		.video-click-card .slide-image { position: relative; }
-		.video-click-cover { position: absolute; inset: 0; z-index: 3; background: transparent; cursor: pointer; }
-		.video-click-card .slide-info { z-index: 4; }
-		.video-embed { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; background: #000000; }
-
-		@media (max-width: 1100px) { .about-wrap { grid-template-columns: 1fr; } .featured-block .slide-card { flex: 0 0 calc(45% - 7px); } }
-		@media (max-width: 860px) { :root { --header-h: auto; } html { scroll-snap-type: none; } header { position: sticky; } .nav { height: auto; align-items: stretch; flex-direction: column; gap: 0; padding: 14px 20px; } .nav-head { width: 100%; } .mobile-menu-btn { display: inline-flex; } .menu { display: none; grid-template-columns: 1fr; gap: 8px; width: 100%; margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--line); } .menu.open { display: grid; } .menu-link { justify-content: space-between; width: 100%; min-height: 46px; padding: 0 16px; border-color: var(--line); font-size: 14px; } main { padding-top: 0; } .section { padding: 76px 22px; } .featured { min-height: auto; } .featured-grid { gap: 20px; } .featured-block .slide-card, .slide-card { flex-basis: 78%; min-width: 220px; } .featured-block:not(.black) .slide-image { aspect-ratio: 4 / 3; } .featured-block.black .slide-image { aspect-ratio: 16 / 9; } .slider-btn { display: none; } }
-		@media (max-width: 560px) { .logo { font-size: 16px; } .menu { grid-template-columns: 1fr; } .section { padding: 64px 18px; } .section-title { font-size: clamp(42px, 16vw, 64px); } .about-text { font-size: 15px; line-height: 1.75; } .featured-block { margin: 0 -1px; } .block-label { padding: 15px; } .info-row { flex-direction: column; gap: 6px; } .info-row span { text-align: left; } footer { padding: 28px 18px; } }
-	</style>
+	<link rel="stylesheet" href="css/site.css?v=20260620-v10">
 </head>
-
 <body>
 	<header>
 		<nav class="nav">
 			<div class="nav-head">
-				<a href="index.html" class="logo">
-					HHM FILM
-					<span>PHOTO · VIDEO</span>
-				</a>
-
-				<button type="button" class="mobile-menu-btn" onclick="toggleMobileMenu(event)" aria-label="메뉴 열기" aria-controls="siteMenu" aria-expanded="false">
-					<span></span>
-					<span></span>
-					<span></span>
-				</button>
+				<a href="#home" class="logo" data-view-link="home">HHM FILM</a>
+				<button type="button" class="mobile-menu-btn" id="mobileMenuBtn" aria-label="메뉴 열기" aria-controls="siteMenu" aria-expanded="false"><span></span><span></span><span></span></button>
 			</div>
-
 			<div id="siteMenu" class="menu">
-				<a href="index.html" class="menu-link active">Home</a>
-				<a href="images.html" class="menu-link">Photography</a>
-				<a href="videos.html" class="menu-link">Videography</a>
-				<a href="index.html#about" class="menu-link">About</a>
+				<a href="#home" class="menu-link" data-view-link="home">Home</a>
+				<a href="#photography" class="menu-link" data-view-link="photography">Photography</a>
+				<a href="#videography" class="menu-link" data-view-link="videography">Videography</a>
+				<a href="#about" class="menu-link" data-view-link="about">About</a>
 			</div>
 		</nav>
 	</header>
+	<main id="app" aria-live="polite"></main>
+	<footer>© <span id="year"></span> HHM FILM. All rights reserved.</footer>
+	<div class="loading hide" id="loading" aria-hidden="true">
+		<div class="transition-base"></div>
+		<div class="transition-panel transition-panel-left"></div>
+		<div class="transition-panel transition-panel-right"></div>
+		<div class="transition-beam transition-beam-one"></div>
+		<div class="transition-beam transition-beam-two"></div>
+		<div class="transition-orb transition-orb-one"></div>
+		<div class="transition-orb transition-orb-two"></div>
+		<div class="transition-grain"></div>
+		<div class="transition-center"><span class="transition-dot"></span><span>HHM FILM</span></div>
+		<div class="transition-progress"><span></span></div>
+	</div>
 
-	<main>
-		<section id="home" class="section featured snap-section">
-			<div class="featured-grid">
-				<div class="featured-block">
-					<div class="block-label">
-						<span>Photography 대표작</span>
-					</div>
-
-					<div class="slider-wrap">
-						<button type="button" class="slider-btn prev" onclick="moveSlider('photoSlider', -1)">‹</button>
-						<div id="photoSlider" class="slider" data-auto-slider></div>
-						<button type="button" class="slider-btn next" onclick="moveSlider('photoSlider', 1)">›</button>
-					</div>
-				</div>
-
-				<div class="featured-block black">
-					<div class="block-label">
-						<span>Videography 대표작</span>
-					</div>
-
-					<div class="slider-wrap">
-						<button type="button" class="slider-btn prev" onclick="moveSlider('videoSlider', -1)">‹</button>
-						<div id="videoSlider" class="slider" data-auto-slider></div>
-						<button type="button" class="slider-btn next" onclick="moveSlider('videoSlider', 1)">›</button>
-					</div>
-				</div>
+	<!-- 페이지 조각 호출이 제한된 환경을 위한 내장 대체 템플릿 -->
+	<template id="view-template-home"><section class="section featured">
+	<div class="featured-heading"><p class="kicker">Selected Works</p><h1 class="featured-title">대표작</h1></div>
+	<div class="featured-grid">
+		<div class="featured-block">
+			<div class="slider-wrap">
+				<button type="button" class="slider-btn prev" data-slider="photoSlider" data-direction="-1" aria-label="이전 사진">‹</button>
+				<div id="photoSlider" class="slider" data-auto-slider></div>
+				<button type="button" class="slider-btn next" data-slider="photoSlider" data-direction="1" aria-label="다음 사진">›</button>
 			</div>
-		</section>
-
-		<section id="about" class="section snap-section">
-			<p class="kicker">About</p>
-			<h2 class="section-title">HHM<br>Film</h2>
-
-			<div class="about-wrap">
-				<div class="about-text">
-					<!--<h3>작가의 말</h3>-->
-					<p id="artistMessage"></p>
-				</div>
-
-				<div class="about-info" id="aboutInfo"></div>
+		</div>
+		<div class="featured-block black">
+			<div class="slider-wrap">
+				<button type="button" class="slider-btn prev" data-slider="videoSlider" data-direction="-1" aria-label="이전 영상">‹</button>
+				<div id="videoSlider" class="slider" data-auto-slider></div>
+				<button type="button" class="slider-btn next" data-slider="videoSlider" data-direction="1" aria-label="다음 영상">›</button>
 			</div>
-		</section>
-	</main>
-
-	<footer>
-		© <span id="year"></span> HHM FILM. All rights reserved.
-	</footer>
-
-	<div class="loading" id="loading">Loading</div>
+		</div>
+	</div>
+</section></template>
+	<template id="view-template-photography"><section class="section">
+	<div class="archive-head">
+		<div><p class="kicker">Photography</p><h1 class="section-title">Photography</h1></div>
+	</div>
+	<div id="archiveList" class="photo-archive"></div>
+</section></template>
+	<template id="view-template-videography"><section class="section">
+	<div class="archive-head">
+		<div>
+			<p class="kicker">Videography</p>
+			<h1 class="section-title">Videography</h1>
+		</div>
+	</div>
+	<div id="archiveList" class="video-project-list"></div>
+</section></template>
+	<template id="view-template-about"><section class="section home-about">
+	<p class="kicker">About</p>
+	<h1 class="section-title">HHM<br>Film</h1>
+	<div class="about-wrap">
+		<div class="about-text" id="aboutText"><p id="artistMessage"></p></div>
+		<div class="about-info" id="aboutInfo"></div>
+	</div>
+</section></template>
+	<template id="view-template-detail"><section class="section detail-section">
+	<a class="back-link" href="#photography" id="backLink">← Image</a>
+	<p class="kicker" id="detailCategory"></p>
+	<h1 class="detail-title" id="detailTitle"></h1>
+	<p class="detail-caption" id="detailCaption"></p>
+	<p class="detail-description" id="detailDescription"></p>
+	<div class="item-list" id="itemList"></div>
+</section></template>
 
 	<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-	<script src="js/supabase.js"></script>
-	<script src="js/main.js"></script>
-
-	<script>
-		function moveSlider(id, direction) {
-			const slider = document.getElementById(id);
-			if (!slider) { return; }
-			const card = slider.querySelector('.slide-card');
-			if (!card) { return; }
-			const gap = 20;
-			const moveWidth = card.offsetWidth + gap;
-			slider.scrollLeft += moveWidth * direction;
-		}
-
-		function startAutoSliders() {
-			const sliders = document.querySelectorAll('[data-auto-slider]');
-			sliders.forEach((slider) => {
-				let paused = false;
-				slider.addEventListener('mouseenter', () => paused = true);
-				slider.addEventListener('mouseleave', () => paused = false);
-				slider.addEventListener('touchstart', () => paused = true, { passive: true });
-				slider.addEventListener('touchend', () => paused = false);
-				setInterval(() => {
-					if (paused) { return; }
-					const card = slider.querySelector('.slide-card');
-					if (!card) { return; }
-					const gap = 20;
-					const moveWidth = card.offsetWidth + gap;
-					const maxScroll = slider.scrollWidth - slider.clientWidth - 5;
-					if (slider.scrollLeft >= maxScroll) {
-						slider.scrollTo({ left: 0, behavior: 'smooth' });
-						return;
-					}
-					slider.scrollBy({ left: moveWidth, behavior: 'smooth' });
-				}, 7600);
-			});
-		}
-
-		function toggleMobileMenu(event) {
-			event.stopPropagation();
-			const menu = document.getElementById('siteMenu');
-			const button = document.querySelector('.mobile-menu-btn');
-			const isOpen = menu.classList.toggle('open');
-			button.classList.toggle('open', isOpen);
-			button.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
-			button.setAttribute('aria-label', isOpen ? '메뉴 닫기' : '메뉴 열기');
-		}
-
-		function closeMobileMenu() {
-			const menu = document.getElementById('siteMenu');
-			const button = document.querySelector('.mobile-menu-btn');
-			if (!menu || !button) { return; }
-			menu.classList.remove('open');
-			button.classList.remove('open');
-			button.setAttribute('aria-expanded', 'false');
-			button.setAttribute('aria-label', '메뉴 열기');
-		}
-
-		document.addEventListener('click', (event) => {
-			if (!event.target.closest('header')) {
-				closeMobileMenu();
-			}
-		});
-
-		document.querySelectorAll('#siteMenu a').forEach((link) => {
-			link.addEventListener('click', () => closeMobileMenu());
-		});
-
-		document.addEventListener('keydown', (event) => {
-			if (event.key === 'Escape') {
-				closeMobileMenu();
-			}
-		});
-
-		document.getElementById('year').textContent = new Date().getFullYear();
-	</script>
+	<script src="js/supabase.js?v=20260620-v10"></script>
+	<script src="js/app.js?v=20260620-v10"></script>
 </body>
 </html>
