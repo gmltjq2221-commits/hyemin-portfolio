@@ -36,15 +36,14 @@
 		.section-title { font-size: clamp(44px, 7vw, 96px); font-weight: 500; letter-spacing: -0.07em; line-height: 0.95; }
 		.featured { min-height: calc(100vh - var(--header-h)); display: flex; flex-direction: column; justify-content: center; border-bottom: 1px solid var(--line); }
 		.featured-grid { display: flex; flex-direction: column; gap: 28px; width: 100%; }
-		.featured-block { background: var(--white); }
+		.featured-block { border: 1px solid var(--black); background: var(--white); }
 		.featured-block.black { background: var(--black); color: var(--white); }
 		.featured-block .slider-wrap { position: relative; }
 		.featured-block:not(.black) .slide-image { aspect-ratio: 16 / 9; }
 		.featured-block.black .slide-image { aspect-ratio: 16 / 9; }
 		.featured-block .slide-card { flex: 0 0 calc(50% - 10px); min-width: 420px; }
 		.featured-block .slider { gap: 20px; padding: 22px; }
-		.block-label { display: flex; align-items: center; justify-content: space-between; padding: 22px 24px; font-size: 16px; font-weight: 800; letter-spacing: 0.04em; }
-		.block-label span { display: none; }
+		.block-label { display: flex; align-items: center; justify-content: space-between; padding: 22px 24px; border-bottom: 1px solid currentColor; font-size: 16px; font-weight: 800; letter-spacing: 0.04em; }
 		.slider-wrap { position: relative; }
 		.slider { display: flex; gap: 14px; overflow-x: auto; scroll-behavior: smooth; scroll-snap-type: x mandatory; padding: 14px; scrollbar-width: none; }
 		.slider::-webkit-scrollbar { display: none; }
@@ -55,9 +54,6 @@
 		.slide-card:hover .slide-image img { opacity: 0.76; transform: scale(1.035); }
 		.featured-block.black .slide-card { background: #171717; }
 		.slide-info { position: absolute; left: 0; right: 0; bottom: 0; display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 14px; background: rgba(255, 255, 255, 0.9); color: var(--black); font-size: 13px; font-weight: 800; }
-		.featured-block.black .slide-info { background: rgba(0, 0, 0, 0.78); color: var(--white); }
-		.slide-info span:first-child { display: block; flex: 1 1 auto; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-		.slide-info { position: absolute; left: 0; right: 0; bottom: 0; display: flex; align-items: center; gap: 12px; padding: 14px; background: rgba(255, 255, 255, 0.9); color: var(--black); font-size: 13px; font-weight: 800; }
 		.featured-block.black .slide-info { background: rgba(0, 0, 0, 0.78); color: var(--white); }
 		.slider-btn { position: absolute; top: 50%; z-index: 100; width: 42px; height: 42px; border: 1px solid var(--black); border-radius: 50%; background: var(--white); color: var(--black); font-size: 24px; cursor: pointer; transform: translateY(-50%); transition: 0.2s ease; }
 		.slider-btn:hover { background: var(--black); color: var(--white); }
@@ -80,9 +76,6 @@
 		footer { padding: 34px 48px; border-top: 1px solid var(--line); text-align: center; color: var(--muted); font-size: 13px; }
 		.loading { position: fixed; left: 50%; bottom: 28px; z-index: 200; transform: translateX(-50%); padding: 12px 18px; border-radius: 999px; background: rgba(0, 0, 0, 0.78); color: rgba(255, 255, 255, 0.78); font-size: 13px; backdrop-filter: blur(8px); }
 		.loading.hide { display: none; }
-		/* internal page transition classes */
-		main.fade-out { opacity: 0; transform: translateY(8px); transition: opacity 0.28s ease, transform 0.28s ease; }
-		main.fade-in { opacity: 1; transform: translateY(0); transition: opacity 0.28s ease, transform 0.28s ease; }
 		.video-click-card { cursor: pointer; }
 		.video-click-card .slide-image { position: relative; }
 		.video-click-cover { position: absolute; inset: 0; z-index: 3; background: transparent; cursor: pointer; }
@@ -173,90 +166,6 @@
 	<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 	<script src="js/supabase.js"></script>
 	<script src="js/main.js"></script>
-
-	<script>
-	// 페이지 내부 로드(앱처럼) - 메뉴 클릭 시 다른 html을 fetch해서 main.content에 삽입
-	(function() {
-		function loadPage(url) {
-				// if running from file:// fetch will usually fail — fallback to full navigation
-				if (location.protocol === 'file:') {
-					location.href = url;
-					return;
-				}
-			const mainEl = document.querySelector('main');
-			if (!mainEl) return;
-			mainEl.classList.add('fade-out');
-			setTimeout(async function() {
-				try {
-					const res = await fetch(url, { cache: 'no-store' });
-					if (!res.ok) throw new Error('Load failed');
-					const text = await res.text();
-					const parser = new DOMParser();
-					const doc = parser.parseFromString(text, 'text/html');
-					const newMain = doc.querySelector('main');
-					if (newMain) {
-						// copy body data- attributes so loaded page scripts detect board/page kind
-						try {
-							if (doc.body && doc.body.dataset) {
-								Object.keys(doc.body.dataset).forEach(function(k) {
-									document.body.dataset[k] = doc.body.dataset[k];
-								});
-							}
-							// update title
-							if (doc.title) document.title = doc.title;
-						} catch (e) {
-							console.warn('body dataset copy failed', e);
-						}
-						// replace main content
-						mainEl.innerHTML = newMain.innerHTML;
-						// run inline scripts from loaded page (basic)
-						doc.querySelectorAll('script').forEach(function(s) {
-							if (s.src) {
-								const scr = document.createElement('script');
-								scr.src = s.src;
-								document.body.appendChild(scr);
-							} else {
-								eval(s.textContent);
-							}
-						});
-						// small reflow in
-						setTimeout(function() { mainEl.classList.remove('fade-out'); mainEl.classList.add('fade-in'); setTimeout(()=>mainEl.classList.remove('fade-in'), 340); }, 30);
-
-						// update active menu link
-						try {
-							document.querySelectorAll('#siteMenu .menu-link').forEach(function(link) {
-								link.classList.toggle('active', link.getAttribute('href') === url);
-							});
-						} catch (e) {}
-					}
-				} catch (err) {
-					console.error('페이지 로드 실패', err);
-					// fallback to normal navigation if fetch fails (useful for local file testing or server issues)
-					mainEl.classList.remove('fade-out');
-					location.href = url;
-				}
-			}, 220);
-		}
-
-		document.querySelectorAll('#siteMenu a').forEach(function(a) {
-			a.addEventListener('click', function(e) {
-				e.preventDefault();
-				const href = a.getAttribute('href');
-				if (!href || href.startsWith('#') || href === 'index.html') {
-					// allow internal anchors and home
-					if (href && href.startsWith('#')) {
-						const target = document.querySelector(href);
-						if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
-					}
-					closeMobileMenu();
-					return;
-				}
-				loadPage(href);
-				closeMobileMenu();
-			});
-		});
-	})();
-	</script>
 
 	<script>
 		function moveSlider(id, direction) {

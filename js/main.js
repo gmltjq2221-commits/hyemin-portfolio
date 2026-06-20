@@ -140,6 +140,7 @@ function renderImageSlide(post) {
 
 				<div class="slide-info">
 					<span>${escapeHtml(post.title || '')}</span>
+					<span>Photo</span>
 				</div>
 			</div>
 		</div>
@@ -163,9 +164,10 @@ function renderVideoSlide(post) {
 				<img src="${thumbUrl}" alt="${escapeAttr(post.title || 'YouTube video')}">
 				<span class="play-button">▶</span>
 
-					<div class="slide-info">
-						<span>${escapeHtml(post.title || '')}</span>
-					</div>
+				<div class="slide-info">
+					<span>${escapeHtml(post.title || '')}</span>
+					<span>Video</span>
+				</div>
 			</div>
 		</div>
 	`;
