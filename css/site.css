@@ -104,7 +104,7 @@ footer { padding:34px 48px; border-top:1px solid var(--line); text-align:center;
 #app { position:relative; overflow:hidden; isolation:isolate; }
 .view { opacity:1; transform:translate3d(0,0,0); transform-origin:50% 20%; backface-visibility:hidden; will-change:transform, opacity; }
 .view.is-preparing { opacity:0; transform:translate3d(38px,20px,0) scale(.985); }
-.view.is-active { animation:page-arrive 1.28s cubic-bezier(.16,1,.3,1) both; }
+.view.is-active { animation:page-arrive 2.28s cubic-bezier(.16,1,.3,1) both; }
 .view.is-leaving { animation:page-depart 1.25s cubic-bezier(.32,0,.18,1) both; pointer-events:none; }
 @keyframes page-arrive {
 	0% { opacity:0; transform:translate3d(46px,24px,0) scale(.98); }
@@ -117,10 +117,10 @@ footer { padding:34px 48px; border-top:1px solid var(--line); text-align:center;
 	42% { opacity:.98; transform:translate3d(-12px,-4px,0) scale(1.006); }
 	100% { opacity:0; transform:translate3d(-72px,-22px,0) scale(1.018); }
 }
-.view.is-active .section > * { animation:content-rise .95s cubic-bezier(.16,1,.3,1) both; }
-.view.is-active .section > *:nth-child(2) { animation-delay:.1s; }
-.view.is-active .section > *:nth-child(3) { animation-delay:.2s; }
-.view.is-active .section > *:nth-child(4) { animation-delay:.3s; }
+.view.is-active .section > * { animation:content-rise 1.95s cubic-bezier(.16,1,.3,1) both; }
+.view.is-active .section > *:nth-child(2) { animation-delay:.6s; }
+.view.is-active .section > *:nth-child(3) { animation-delay:1.2s; }
+.view.is-active .section > *:nth-child(4) { animation-delay:1.6s; }
 @keyframes content-rise { from { opacity:0; transform:translate3d(0,20px,0); } to { opacity:1; transform:translate3d(0,0,0); } }
 /* 이미지가 준비될 때까지 카드 안에서만 느린 셔머가 유지됩니다. */
 .slide-image, .photo-card-image, .video-thumb-image { position:relative; background:linear-gradient(112deg,#ececec 24%,#fafafa 40%,#ececec 56%); background-size:220% 100%; animation:image-shimmer 2.6s linear infinite; }
